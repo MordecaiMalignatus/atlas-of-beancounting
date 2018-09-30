@@ -1,0 +1,26 @@
+* Atlas of Beancounting
+
+Ever been curious about what the numbers we all like so much actually look like
+behind your mapping? Cool, me too.
+
+* Things to be done
+** TODO Look at ~rust-webview~ for the UI parts.
+** TODO Look for package that handles reading from the clipboard.
+** TODO Look at notify package for the zone log
+*** TODO Try to guess where the file is before prompting for config [/]
+- [ ] Steam path
+- [ ] Standalone-launcher path
+*** TODO Look at how to structure the tail log for the zone log.
+** TODO How is the data in the end going to be structured?
+It's probably not going to be /that much/ data, so I could realistically store
+it all in a JSON file and keep it in memory.
+
+Another alternative is SQLite.
+** Things done.
+
+* About the Project
+
+** Why is this being written?
+I don't like uploading data like that to a centralised service for no good
+reason, so here's something that works entirely machine-local, doesn't snoop for
+anything, and doesn't consume too many resources.

@@ -1,0 +1,6 @@
+[package]
+name = "atlas-of-beancounting"
+version = "0.1.0"
+authors = ["Mordecai Malignatus <az4reus@gmail.com>"]
+
+[dependencies]
