@@ -4,3 +4,10 @@ version = "0.1.0"
 authors = ["Mordecai Malignatus <az4reus@gmail.com>"]
 
 [dependencies]
+web-view = "0.2.1"
+
+[target.'cfg(windows)'.dependencies]
+clipboard-win = "2.1.2"
+
+[target.'cfg(unix)'.dependencies]
+clipboard2 = "0.1.0"
