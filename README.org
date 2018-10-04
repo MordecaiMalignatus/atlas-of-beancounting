@@ -4,8 +4,9 @@ Ever been curious about what the numbers we all like so much actually look like
 behind your mapping? Cool, me too.
 
 * Things to be done
-** TODO Look at ~rust-webview~ for the UI parts.
 ** TODO Look for package that handles reading from the clipboard.
+** DONE Look at ~rust-webview~ for the UI parts.
+CLOSED: [2018-10-04 Thu 05:55]
 win-clipboard looks like a strong contender.
 ** TODO Look at notify package for the zone log
 *** TODO Try to guess where the file is before prompting for config [/]
