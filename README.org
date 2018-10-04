@@ -1,4 +1,4 @@
-* Atlas of Beancounting
+* Path of Beancounting
 
 Ever been curious about what the numbers we all like so much actually look like
 behind your mapping? Cool, me too.
@@ -6,6 +6,7 @@ behind your mapping? Cool, me too.
 * Things to be done
 ** TODO Look at ~rust-webview~ for the UI parts.
 ** TODO Look for package that handles reading from the clipboard.
+win-clipboard looks like a strong contender.
 ** TODO Look at notify package for the zone log
 *** TODO Try to guess where the file is before prompting for config [/]
 - [ ] Steam path
@@ -16,6 +17,8 @@ It's probably not going to be /that much/ data, so I could realistically store
 it all in a JSON file and keep it in memory.
 
 Another alternative is SQLite.
+** TODO Find way to grab and cache the poe.ninja prices
+** TODO Devise rudimentary item parser that extracts names and kinds.
 ** Things done.
 
 * About the Project
