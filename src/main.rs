@@ -1,9 +1,5 @@
 extern crate notify;
-
-#[cfg(windows)]
-extern crate clipboard_win;
-#[cfg(unix)]
-extern crate clipboard2;
+extern crate clipboard;
 
 mod clipboard_poller;
 mod types;
@@ -21,4 +17,7 @@ fn main() {
     });
 
     println!("{:?}", receiver.recv());
+    println!("{:?}", receiver.recv());
+    println!("{:?}", receiver.recv());
+
 }
