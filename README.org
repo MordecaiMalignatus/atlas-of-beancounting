@@ -4,10 +4,6 @@ Ever been curious about what the numbers we all like so much actually look like
 behind your mapping? Cool, me too.
 
 * Things to be done
-** TODO Look for package that handles reading from the clipboard.
-** DONE Look at ~rust-webview~ for the UI parts.
-CLOSED: [2018-10-04 Thu 05:55]
-win-clipboard looks like a strong contender.
 ** TODO Look at notify package for the zone log
 *** TODO Try to guess where the file is before prompting for config [/]
 - [ ] Steam path
@@ -20,8 +16,15 @@ it all in a JSON file and keep it in memory.
 Another alternative is SQLite.
 ** TODO Find way to grab and cache the poe.ninja prices
 ** TODO Devise rudimentary item parser that extracts names and kinds.
-** Things done.
+** TODO Use InputBot to catch and handle user input on separate thread
+https://github.com/obv-mikhail/InputBot
 
+This will probably add another thread that has to be handled to the picture, for
+hotkeys and "start new map" things.
+* Things done.
+** DONE Look at ~rust-webview~ for the UI parts.
+CLOSED: [2018-10-04 Thu 05:55]
+win-clipboard looks like a strong contender.
 * About the Project
 
 ** Why is this being written?
