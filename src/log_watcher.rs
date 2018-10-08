@@ -5,9 +5,25 @@ use std::path::PathBuf;
 use std::io::ErrorKind;
 use std::io::Error;
 use types::zone_event::ZoneEvent;
+use notify::{Watcher, raw_watcher, RecursiveMode, RawEvent};
 
 pub fn watch_zone_log(s: Sender<ZoneEvent>) -> ! {
-    loop {}
+    let  (watcher_sender, watcher_receiver) = channel();
+    let mut watcher = raw_watcher(watcher_sender).unwrap();
+    let filepath = guess_event_path().expect("Can't start watcher without event log.");
+
+    watcher.watch(filepath, RecursiveMode::NonRecursive).unwrap();
+
+    loop {
+        match watcher_receiver.recv() {
+            Ok(RawEvent{path: Some(path), op: Ok(op), cookie}) =>
+                println!("{:?}, {:?}, {:?}: Raw event received", path, op, cookie),
+            Ok(event) =>
+                println!("Got broken event: {:?}", event),
+            Err(e) =>
+                panic!("Caught error {:?}", e),
+        }
+    }
 }
 
 /// We don't actually know where on the system the log file is, so we're gonna
