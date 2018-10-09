@@ -1,6 +1,6 @@
-extern crate notify;
-extern crate clipboard;
 extern crate chrono;
+extern crate clipboard;
+extern crate notify;
 
 mod clipboard_poller;
 mod log_watcher;
@@ -19,7 +19,4 @@ fn main() {
     });
 
     println!("{:?}", receiver.recv());
-    println!("{:?}", receiver.recv());
-    println!("{:?}", receiver.recv());
-
 }
