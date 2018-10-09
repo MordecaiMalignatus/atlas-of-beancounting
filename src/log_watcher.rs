@@ -34,3 +34,17 @@ pub fn watch_zone_log(s: Sender<ZoneEvent>) -> ! {
 fn guess_event_path() -> Result<PathBuf, Error> {
     Err(Error::new(ErrorKind::Other, "Not implemented"))
 }
+
+/// Get the last line of a file efficiently.  This returns an offset that is
+/// intended to be fed back into the function after getting a WRITE event from
+/// our watcher.
+fn get_last_line_of_log(file: &Path, offset: u64) -> Result<(String, u64), Error> {
+    let mut file = File::open(&file)?;
+    file.seek(SeekFrom::Start(offset))?;
+
+    let mut last_line = String::new();
+    let bytes_read = file.read_to_string(&mut last_line)?;
+    let new_offset = offset + bytes_read as u64;
+
+    Ok((last_line, new_offset))
+}
