@@ -1,7 +1,6 @@
 use chrono::prelude::*;
 
 #[derive(Debug)]
-pub struct ZoneEvent {
-    pub new_zone: String,
-    pub timestamp: DateTime<Local>,
+pub enum ZoneEvent {
+    ZoneChange(String, DateTime<Local>),
 }
