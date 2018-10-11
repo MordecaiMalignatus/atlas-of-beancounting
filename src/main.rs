@@ -12,11 +12,17 @@ use std::thread;
 fn main() {
     println!("Hello, world!");
 
-    let (sender, receiver) = mpsc::channel();
+    let (clipboard_sender, clipboard_receiver) = mpsc::channel();
 
     thread::spawn(move || {
-        clipboard_poller::watch_clipboard(sender);
+        clipboard_poller::watch_clipboard(clipboard_sender);
     });
 
-    println!("{:?}", receiver.recv());
+    let (log_sender, log_receiver) = mpsc::channel();
+    thread::spawn(move || {
+        log_watcher::watch_zone_log(log_sender);
+    });
+
+    println!("{:?}", clipboard_receiver.recv());
+    println!("{:?}", log_receiver.recv());
 }
