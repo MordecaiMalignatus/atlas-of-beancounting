@@ -53,6 +53,8 @@ fn guess_event_path() -> Result<PathBuf, Error> {
 /// Get the last line of a file efficiently.  This returns an offset that is
 /// intended to be fed back into the function after getting a WRITE event from
 /// our watcher.
+/// TODO: This assumes the last line gotten will always be a single one, but that's
+/// not always the case. It needs to be the last line of the new lines we haven't seen yet.
 fn get_last_line_of_log(file: &Path, offset: u64) -> Result<(String, u64), Error> {
     let mut file = File::open(&file)?;
     file.seek(SeekFrom::Start(offset))?;
