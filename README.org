@@ -16,6 +16,7 @@ it all in a JSON file and keep it in memory.
 Another alternative is SQLite.
 ** TODO Find way to grab and cache the poe.ninja prices
 ** TODO Devise rudimentary item parser that extracts names and kinds.
+** TODO Make copy of my event log on desktop and use it for testing.
 ** TODO Use InputBot to catch and handle user input on separate thread
 https://github.com/obv-mikhail/InputBot
 
