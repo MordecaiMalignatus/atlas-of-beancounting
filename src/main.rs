@@ -4,6 +4,7 @@ extern crate notify;
 
 mod clipboard_poller;
 mod log_watcher;
+mod tooltip_parser;
 mod types;
 
 use std::sync::mpsc;
@@ -13,7 +14,6 @@ fn main() {
     println!("Hello, world!");
 
     let (clipboard_sender, clipboard_receiver) = mpsc::channel();
-
     thread::spawn(move || {
         clipboard_poller::watch_clipboard(clipboard_sender);
     });
