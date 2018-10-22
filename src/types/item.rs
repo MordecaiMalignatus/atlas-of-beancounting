@@ -8,6 +8,7 @@ pub struct Item {
     pub sockets: Option<String>,
     pub item_level: u32,
     pub requirements: Option<Requirements>,
+    pub stack_size: (u32, u32),
 }
 
 #[derive(Debug)]
@@ -21,6 +22,7 @@ pub struct Requirements {
 #[derive(Debug, PartialEq)]
 pub enum ItemRarity {
     Currency,
+    DivinationCard,
     Normal,
     Magical,
     Rare,
