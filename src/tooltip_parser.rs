@@ -1,7 +1,39 @@
+use std::io::Error;
+use std::io::ErrorKind;
 use types::item::Item;
+use types::item::ItemRarity;
+
+type Rest = String;
 
 fn parse_tooltip(content: String) -> Result<Item, Error> {
+    let (rarity, rest) = parse_rarity(content)?;
+
     Err(Error::new(ErrorKind::Other, "Not implemented yet :("))
+}
+
+fn parse_rarity(item: String) -> Result<(ItemRarity, Rest), Error> {
+    let mut item_lines = item.lines();
+    let first_line = item_lines.next().unwrap();
+    let rest: String = item_lines.collect();
+    match first_line.starts_with("Rarity: ") {
+        true => match &first_line[8..] {
+            "Unique" => Ok((ItemRarity::Unique, rest)),
+            "Currency" => Ok((ItemRarity::Currency, rest)),
+            "Normal" => Ok((ItemRarity::Normal, rest)),
+            "Magical" => Ok((ItemRarity::Magical, rest)),
+            "Rare" => Ok((ItemRarity::Rare, rest)),
+            "Divination Card" => Ok((ItemRarity::DivinationCard, rest)),
+            r @ _ => Err(Error::new(
+                ErrorKind::InvalidData,
+                format!("Rarity {} is not a valid rarity!", r),
+            )),
+        },
+
+        false => Err(Error::new(
+            ErrorKind::InvalidData,
+            format!("No item rarity in first line, in this tooltip: \n {}", item),
+        )),
+    }
 }
 
 #[cfg(test)]
