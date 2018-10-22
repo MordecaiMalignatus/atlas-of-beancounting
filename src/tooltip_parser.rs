@@ -1,20 +1,19 @@
 use types::item::Item;
 
-fn parse_tooltip(content: String) -> Option<Item> {
-    None
+fn parse_tooltip(content: String) -> Result<Item, Error> {
+    Err(Error::new(ErrorKind::Other, "Not implemented yet :("))
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use types::item::ItemRarity;
 
     #[test]
     fn should_parse_currencies() {
         let chaos_orb = include_str!("../resources/chaos-orb").to_string();
         let result = parse_tooltip(chaos_orb);
 
-        assert!(result.is_some());
+        assert!(result.is_ok());
 
         let item = result.unwrap();
 
@@ -27,7 +26,7 @@ mod test {
         let essence = include_str!("../resources/essence-of-spite").to_string();
         let result = parse_tooltip(essence);
 
-        assert!(result.is_some());
+        assert!(result.is_ok());
 
         let item = result.unwrap();
 
@@ -40,7 +39,7 @@ mod test {
         let cage = include_str!("../resources/shaped-cage").to_string();
         let result = parse_tooltip(cage);
 
-        assert!(result.is_some());
+        assert!(result.is_ok());
 
         let item = result.unwrap();
 
@@ -56,7 +55,7 @@ mod test {
         let card = include_str!("../resources/heterochromia-card").to_string();
         let result = parse_tooltip(card);
 
-        assert!(result.is_some());
+        assert!(result.is_ok());
 
         let item = result.unwrap();
 
@@ -72,7 +71,7 @@ mod test {
         let inpulsas = include_str!("../resources/inpulsas-broken-heart").to_string();
         let result = parse_tooltip(inpulsas);
 
-        assert!(result.is_some());
+        assert!(result.is_ok());
 
         let item = result.unwrap();
 
