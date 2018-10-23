@@ -40,6 +40,29 @@ fn parse_rarity(item: String) -> Result<(ItemRarity, Rest), Error> {
 mod test {
     use super::*;
 
+
+    mod rarity_test {
+        use super::*;
+
+        #[test]
+        fn should_parse_unique_rarities() {
+            let test_string = "Rarity: Unique\n".to_string();
+            assert!(parse_rarity(test_string).unwrap() == (ItemRarity::Unique, "".to_string()))
+        }
+
+        #[test]
+        fn should_error_on_bad_rarities() {
+            let test_string = "Rarity: Some Shit".to_string();
+            assert!(parse_rarity(test_string).is_err());
+        }
+
+        #[test]
+        fn should_correclty_handle_empty_string() {
+            let test_string = "".to_string();
+            assert!(parse_rarity(test_string).is_err());
+        }
+    }
+
     #[test]
     fn should_parse_currencies() {
         let chaos_orb = include_str!("../resources/chaos-orb").to_string();
