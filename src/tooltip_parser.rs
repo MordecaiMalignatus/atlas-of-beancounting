@@ -13,7 +13,14 @@ fn parse_tooltip(content: String) -> Result<Item, Error> {
 
 fn parse_rarity(item: String) -> Result<(ItemRarity, Rest), Error> {
     let mut item_lines = item.lines();
-    let first_line = item_lines.next().unwrap();
+    let first_line = match item_lines.next() {
+        Some(x) => x,
+        None => {
+            return Err(generate_error(
+                "Empty string, can't parse rarity".to_string(),
+            ))
+        }
+    };
     let rest: String = item_lines.collect();
 
     match first_line.starts_with("Rarity: ") {
