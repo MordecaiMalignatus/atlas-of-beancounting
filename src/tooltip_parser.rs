@@ -40,6 +40,39 @@ fn parse_rarity(item: String) -> Result<(ItemRarity, Rest), Error> {
 mod test {
     use super::*;
 
+    mod stack_size_test {
+        use super::*;
+
+        #[test]
+        fn should_parse_simple_stacks() {
+            let test_string = "Stack Size: 10/20\n".to_string();
+            let res = parse_stack_size(test_string);
+
+            assert!(res.is_ok());
+
+            let ((current, max), _rest) = res.unwrap();
+
+            assert!(current == 10);
+            assert!(max == 20);
+        }
+
+        #[test]
+        fn should_break_on_malformed_stacks() {
+            let test_string = "Stack Size: Foo/Bar".to_string();
+            let res = parse_stack_size(test_string);
+
+            assert!(res.is_err())
+        }
+
+        #[test]
+        fn should_break_on_stacks_without_slash() {
+            let test_string = "Stack Size: 10".to_string();
+            let res = parse_stack_size(test_string);
+
+            println!("{:?}", res);
+            assert!(res.is_err());
+        }
+    }
 
     mod rarity_test {
         use super::*;
