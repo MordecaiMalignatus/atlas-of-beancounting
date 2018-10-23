@@ -15,6 +15,7 @@ fn parse_rarity(item: String) -> Result<(ItemRarity, Rest), Error> {
     let mut item_lines = item.lines();
     let first_line = item_lines.next().unwrap();
     let rest: String = item_lines.collect();
+
     match first_line.starts_with("Rarity: ") {
         true => match &first_line[8..] {
             "Unique" => Ok((ItemRarity::Unique, rest)),
@@ -34,6 +35,54 @@ fn parse_rarity(item: String) -> Result<(ItemRarity, Rest), Error> {
             format!("No item rarity in first line, in this tooltip: \n {}", item),
         )),
     }
+}
+
+fn parse_stack_size(item: String) -> Result<((u32, u32), Rest), Error> {
+    let mut lines = item.lines();
+    let relevant_line = match lines.next() {
+        Some(x) => x,
+        None => {
+            return Err(generate_error(
+                "Empty string, can't parse stack size.".to_string(),
+            ))
+        }
+    };
+    let rest: String = lines.collect();
+
+    match relevant_line.starts_with("Stack Size: ") {
+        true => {
+            let relevant_string = relevant_line[12..].to_string();
+            let split: Vec<_> = relevant_string.split("/").collect();
+            let current: u32 = match split[0].parse() {
+                Ok(x) => x,
+                Err(_e) => {
+                    return Err(generate_error(format!(
+                        "Can't parse '{}' into number for stack szie.",
+                        split[0]
+                    )))
+                }
+            };
+            let max: u32 = match split[1].parse() {
+                Ok(x) => x,
+                Err(_e) => {
+                    return Err(generate_error(format!(
+                        "Can't parse '{}' into number for stack size.",
+                        split[1]
+                    )))
+                }
+            };
+
+            Ok(((current, max), rest))
+        }
+        false => Err(generate_error(format!(
+            "Line '{}' does not hold a valid stack size.",
+            relevant_line
+        ))),
+    }
+}
+
+fn generate_error(reason: String) -> Error {
+    Error::new(ErrorKind::InvalidData, reason)
 }
 
 #[cfg(test)]
