@@ -48,13 +48,20 @@ fn parse_divider(item: String) -> Result<Rest, Error> {
     let mut lines = item.lines();
     let relevant_line = match lines.next() {
         Some(x) => x,
-        None => return Err(generate_error(format!("Can't parse divider: Empty string."))),
+        None => {
+            return Err(generate_error(format!(
+                "Can't parse divider: Empty string."
+            )))
+        }
     };
     let rest: String = lines.collect();
 
     match relevant_line {
         "--------" => Ok(rest),
-        _ => Err(generate_error(format!("No divider was found in line '{}'.", relevant_line)))
+        _ => Err(generate_error(format!(
+            "No divider was found in line '{}'.",
+            relevant_line
+        ))),
     }
 }
 
