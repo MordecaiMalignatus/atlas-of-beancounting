@@ -9,6 +9,42 @@ fn parse_tooltip(content: String) -> Result<Item, Error> {
     let (rarity, rest) = parse_rarity(content)?;
 
     Err(Error::new(ErrorKind::Other, "Not implemented yet :("))
+
+// Parser Combinators.
+
+fn parse_affixes(item: String) -> Result<(Vec<String>, Rest), Error> {
+    let mut lines = item.lines();
+    let mut current_line = match lines.next() {
+        Some(x) => x.to_string(),
+        None => return Err(generate_error(format!("Can't parse affixes: Empty string"))),
+    };
+    let mut affixes: Vec<String> = Vec::new();
+
+    loop {
+        if let Ok(_) = parse_divider(current_line.clone()) {
+            return Ok((affixes, lines.collect()));
+        }
+
+        affixes.push(current_line.clone());
+
+        let current_line = match lines.next() {
+            Some(x) => x.to_string(),
+            None => {
+                return Err(generate_error(format!(
+                    "Can't parse affixes: EOF while parsing"
+                )))
+            }
+        };
+    }
+}
+
+fn parse_description(item: String) -> Result<String, Error> {
+    match item.len() != 0 {
+        true => Ok(item),
+        false => Err(generate_error(format!(
+            "Can't parse description: Empty String."
+        ))),
+    }
 }
 
 fn parse_rarity(item: String) -> Result<(ItemRarity, Rest), Error> {
@@ -164,7 +200,7 @@ mod test {
 
             let uw = res.unwrap();
 
-            assert_eq!(uw,"".to_string());
+            assert_eq!(uw, "".to_string());
         }
 
         #[test]
@@ -221,7 +257,10 @@ mod test {
         #[test]
         fn should_parse_unique_rarities() {
             let test_string = "Rarity: Unique\n".to_string();
-            assert_eq!(parse_rarity(test_string).unwrap(), (ItemRarity::Unique, "".to_string()))
+            assert_eq!(
+                parse_rarity(test_string).unwrap(),
+                (ItemRarity::Unique, "".to_string())
+            )
         }
 
         #[test]
@@ -242,6 +281,7 @@ mod test {
         let chaos_orb = include_str!("../resources/chaos-orb").to_string();
         let result = parse_tooltip(chaos_orb);
 
+        println!("{:?}", result);
         assert!(result.is_ok());
 
         let item = result.unwrap();
