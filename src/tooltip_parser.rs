@@ -8,7 +8,35 @@ type Rest = String;
 fn parse_tooltip(content: String) -> Result<Item, Error> {
     let (rarity, rest) = parse_rarity(content)?;
 
-    Err(Error::new(ErrorKind::Other, "Not implemented yet :("))
+    match rarity {
+        ItemRarity::Currency => parse_currency(rest),
+        ItemRarity::DivinationCard => unimplemented!(),
+        ItemRarity::Magical | ItemRarity::Normal | ItemRarity::Rare | ItemRarity::Unique => {
+            unimplemented!()
+        }
+    }
+}
+
+fn parse_currency(rest: String) -> Result<Item, Error> {
+    let (name, name_rest) = parse_name(rest)?;
+    let first_divider = parse_divider(name_rest)?;
+    let (stack_size, stack_rest) = parse_stack_size(first_divider)?;
+    let second_div = parse_divider(stack_rest)?;
+    let (affixes, affixes_rest) = parse_affixes(second_div)?;
+    let third_div = parse_divider(affixes_rest)?;
+    let desc = parse_description(third_div)?;
+
+    Ok(Item {
+        rarity: ItemRarity::Currency,
+        name: name,
+        stack_size: stack_size,
+        affixes: affixes,
+        description: desc,
+        item_level: 0,
+        requirements: None,
+        sockets: None,
+    })
+}
 
 // Parser Combinators.
 
