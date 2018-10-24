@@ -44,6 +44,20 @@ fn parse_rarity(item: String) -> Result<(ItemRarity, Rest), Error> {
     }
 }
 
+fn parse_divider(item: String) -> Result<Rest, Error> {
+    let mut lines = item.lines();
+    let relevant_line = match lines.next() {
+        Some(x) => x,
+        None => return Err(generate_error(format!("Can't parse divider: Empty string."))),
+    };
+    let rest: String = lines.collect();
+
+    match relevant_line {
+        "--------" => Ok(rest),
+        _ => Err(generate_error(format!("No divider was found in line '{}'.", relevant_line)))
+    }
+}
+
 fn parse_stack_size(item: String) -> Result<((u32, u32), Rest), Error> {
     let mut lines = item.lines();
     let relevant_line = match lines.next() {
@@ -103,6 +117,30 @@ fn generate_error(reason: String) -> Error {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    mod divider_test {
+        use super::*;
+
+        #[test]
+        fn should_parse_diviers() {
+            let test_string = "--------".to_string();
+            let res = parse_divider(test_string);
+
+            assert!(res.is_ok());
+
+            let uw = res.unwrap();
+
+            assert!(uw == "".to_string());
+        }
+
+        #[test]
+        fn should_break_on_malformed_dividers() {
+            let test_string = "------".to_string();
+            let res = parse_divider(test_string);
+
+            assert!(res.is_err());
+        }
+    }
 
     mod stack_size_test {
         use super::*;
