@@ -60,6 +60,14 @@ fn parse_stack_size(item: String) -> Result<((u32, u32), Rest), Error> {
         true => {
             let relevant_string = relevant_line[12..].to_string();
             let split: Vec<_> = relevant_string.split("/").collect();
+
+            if split.len() != 2 {
+                return Err(generate_error(format!(
+                    "Malformed or no information found in line '{}', cannot parse stacksize.",
+                    relevant_line
+                )));
+            }
+
             let current: u32 = match split[0].parse() {
                 Ok(x) => x,
                 Err(_e) => {
@@ -117,7 +125,12 @@ mod test {
             let test_string = "Stack Size: Foo/Bar".to_string();
             let res = parse_stack_size(test_string);
 
-            assert!(res.is_err())
+            assert!(res.is_err());
+
+            let other_test_string = "Stack Size: 10/12/10".to_string();
+            let res2 = parse_stack_size(other_test_string);
+
+            assert!(res2.is_err());
         }
 
         #[test]
