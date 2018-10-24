@@ -65,6 +65,17 @@ fn parse_divider(item: String) -> Result<Rest, Error> {
     }
 }
 
+fn parse_name(item: String) -> Result<(String, Rest), Error> {
+    let mut lines = item.lines();
+    let name = match lines.next() {
+        Some(x) => x.to_string(),
+        None => return Err(generate_error(format!("Can't parse name: Empty string."))),
+    };
+    let rest: String = lines.collect();
+
+    Ok((name, rest))
+}
+
 fn parse_stack_size(item: String) -> Result<((u32, u32), Rest), Error> {
     let mut lines = item.lines();
     let relevant_line = match lines.next() {
@@ -124,6 +135,22 @@ fn generate_error(reason: String) -> Error {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    mod name_test {
+        use super::*;
+
+        #[test]
+        fn should_parse_name_correctly() {
+            let test_string = "Chaos Orb\nFoobar".to_string();
+            let res = parse_name(test_string);
+
+            assert!(res.is_ok());
+
+            let (name, rest) = res.unwrap();
+            assert_eq!(name, "Chaos Orb".to_string());
+            assert_eq!(rest, "Foobar".to_string());
+        }
+    }
 
     mod divider_test {
         use super::*;
