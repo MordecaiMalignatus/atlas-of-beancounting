@@ -137,7 +137,7 @@ mod test {
 
             let uw = res.unwrap();
 
-            assert!(uw == "".to_string());
+            assert_eq!(uw,"".to_string());
         }
 
         #[test]
@@ -161,8 +161,8 @@ mod test {
 
             let ((current, max), _rest) = res.unwrap();
 
-            assert!(current == 10);
-            assert!(max == 20);
+            assert_eq!(current, 10);
+            assert_eq!(max, 20);
         }
 
         #[test]
@@ -194,7 +194,7 @@ mod test {
         #[test]
         fn should_parse_unique_rarities() {
             let test_string = "Rarity: Unique\n".to_string();
-            assert!(parse_rarity(test_string).unwrap() == (ItemRarity::Unique, "".to_string()))
+            assert_eq!(parse_rarity(test_string).unwrap(), (ItemRarity::Unique, "".to_string()))
         }
 
         #[test]
@@ -219,8 +219,8 @@ mod test {
 
         let item = result.unwrap();
 
-        assert!(item.name == "Chaos Orb".to_string());
-        assert!(item.rarity == ItemRarity::Currency);
+        assert_eq!(item.name, "Chaos Orb".to_string());
+        assert_eq!(item.rarity, ItemRarity::Currency);
     }
 
     #[test]
@@ -232,8 +232,8 @@ mod test {
 
         let item = result.unwrap();
 
-        assert!(item.name == "Essence Of Spite".to_string());
-        assert!(item.rarity == ItemRarity::Currency);
+        assert_eq!(item.name, "Essence Of Spite".to_string());
+        assert_eq!(item.rarity, ItemRarity::Currency);
     }
 
     #[test]
@@ -245,11 +245,11 @@ mod test {
 
         let item = result.unwrap();
 
-        assert!(item.name == "Shaped Cage Map".to_string());
-        assert!(item.rarity == ItemRarity::Normal);
-        assert!(item.item_level == 75);
-        assert!(item.affixes.len() == 1);
-        assert!(item.affixes[0] == "Map Tier: 8 (augmented)".to_string())
+        assert_eq!(item.name, "Shaped Cage Map".to_string());
+        assert_eq!(item.rarity, ItemRarity::Normal);
+        assert_eq!(item.item_level, 75);
+        assert_eq!(item.affixes.len(), 1);
+        assert_eq!(item.affixes[0], "Map Tier: 8 (augmented)".to_string())
     }
 
     #[test]
@@ -261,11 +261,11 @@ mod test {
 
         let item = result.unwrap();
 
-        assert!(item.name == "Heterochromia".to_string());
-        assert!(item.rarity == ItemRarity::DivinationCard);
-        assert!(item.affixes.len() == 1);
-        assert!(item.affixes[0] == "Two-Stone Ring".to_string());
-        assert!(item.stack_size == (1, 2));
+        assert_eq!(item.name, "Heterochromia".to_string());
+        assert_eq!(item.rarity, ItemRarity::DivinationCard);
+        assert_eq!(item.affixes.len(), 1);
+        assert_eq!(item.affixes[0], "Two-Stone Ring".to_string());
+        assert_eq!(item.stack_size, (1, 2));
     }
 
     #[test]
@@ -277,10 +277,10 @@ mod test {
 
         let item = result.unwrap();
 
-        assert!(item.name == "Inpulsa's Broken Heart".to_string());
-        assert!(item.rarity == ItemRarity::Unique);
-        assert!(item.requirements.unwrap().level == 68);
+        assert_eq!(item.name, "Inpulsa's Broken Heart".to_string());
+        assert_eq!(item.rarity, ItemRarity::Unique);
+        assert_eq!(item.requirements.unwrap().level, 68);
         // Inaccurate test, but no matter for this purpose.
-        assert!(item.affixes.len() == 7);
+        assert_eq!(item.affixes.len(), 7);
     }
 }
