@@ -40,22 +40,13 @@ fn parse_currency(rest: String) -> Result<Item, Error> {
 
 // Parser Combinators.
 
+// TODO: Needs a way to catch empty strings, and a test for that.
 fn parse_affixes(item: String) -> Result<(Vec<String>, Rest), Error> {
     let mut lines = item.lines();
-    let mut current_line = match lines.next() {
-        Some(x) => x.to_string(),
-        None => return Err(generate_error(format!("Can't parse affixes: Empty string"))),
-    };
     let mut affixes: Vec<String> = Vec::new();
 
     loop {
-        if let Ok(_) = parse_divider(current_line.clone()) {
-            return Ok((affixes, lines.collect()));
-        }
-
-        affixes.push(current_line.clone());
-
-        let current_line = match lines.next() {
+        let this_line = match lines.next() {
             Some(x) => x.to_string(),
             None => {
                 return Err(generate_error(format!(
@@ -63,6 +54,12 @@ fn parse_affixes(item: String) -> Result<(Vec<String>, Rest), Error> {
                 )))
             }
         };
+
+        if this_line == "--------".to_string() {
+            return Ok((affixes, lines.collect()));
+        }
+
+        affixes.push(this_line);
     }
 }
 
@@ -199,6 +196,25 @@ fn generate_error(reason: String) -> Error {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    mod affix_text {
+        use super::*;
+
+        #[test]
+        fn should_stop_at_divider() {
+            let test_string = "Foo\nBar\n--------\nBaz".to_string();
+            let res = parse_affixes(test_string);
+
+            println!("{:?}", res);
+            assert!(res.is_ok());
+
+            let (affixes, rest) = res.unwrap();
+            assert_eq!(rest, "Baz".to_string());
+            assert_eq!(affixes.len(), 2);
+            assert_eq!(affixes[0], "Foo".to_string());
+            assert_eq!(affixes[1], "Bar".to_string());
+        }
+    }
 
     mod name_test {
         use super::*;
