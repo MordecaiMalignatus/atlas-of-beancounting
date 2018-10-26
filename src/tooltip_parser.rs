@@ -40,8 +40,11 @@ fn parse_currency(rest: String) -> Result<Item, Error> {
 
 // Parser Combinators.
 
-// TODO: Needs a way to catch empty strings, and a test for that.
 fn parse_affixes(item: String) -> Result<(Vec<String>, Rest), Error> {
+    if item.is_empty() {
+        return Err(generate_error(format!("Can't parse affixes: Empty string")));
+    }
+
     let mut lines = item.lines();
     let mut affixes: Vec<String> = Vec::new();
 
