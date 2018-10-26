@@ -1,5 +1,6 @@
 use std::io::Error;
 use std::io::ErrorKind;
+use std::str::Lines;
 use types::item::Item;
 use types::item::ItemRarity;
 
@@ -19,11 +20,15 @@ fn parse_tooltip(content: String) -> Result<Item, Error> {
 
 fn parse_currency(rest: String) -> Result<Item, Error> {
     let (name, name_rest) = parse_name(rest)?;
+    println!("first divider");
     let first_divider = parse_divider(name_rest)?;
+    println!("first divider");
     let (stack_size, stack_rest) = parse_stack_size(first_divider)?;
     let second_div = parse_divider(stack_rest)?;
+    println!("first divider");
     let (affixes, affixes_rest) = parse_affixes(second_div)?;
     let third_div = parse_divider(affixes_rest)?;
+    println!("first divider");
     let desc = parse_description(third_div)?;
 
     Ok(Item {
@@ -59,7 +64,10 @@ fn parse_affixes(item: String) -> Result<(Vec<String>, Rest), Error> {
         };
 
         if this_line == "--------".to_string() {
-            return Ok((affixes, lines.collect()));
+            let mut rest = this_line;
+            rest.push('\n');
+            rest.push_str(&gather(lines));
+            return Ok((affixes, rest));
         }
 
         affixes.push(this_line);
@@ -85,7 +93,7 @@ fn parse_rarity(item: String) -> Result<(ItemRarity, Rest), Error> {
             ))
         }
     };
-    let rest: String = item_lines.collect();
+    let rest: String = gather(item_lines);
 
     match first_line.starts_with("Rarity: ") {
         true => match &first_line[8..] {
@@ -118,7 +126,7 @@ fn parse_divider(item: String) -> Result<Rest, Error> {
             )))
         }
     };
-    let rest: String = lines.collect();
+    let rest: String = gather(lines);
 
     match relevant_line {
         "--------" => Ok(rest),
@@ -135,7 +143,7 @@ fn parse_name(item: String) -> Result<(String, Rest), Error> {
         Some(x) => x.to_string(),
         None => return Err(generate_error(format!("Can't parse name: Empty string."))),
     };
-    let rest: String = lines.collect();
+    let rest: String = gather(lines);
 
     Ok((name, rest))
 }
@@ -150,7 +158,7 @@ fn parse_stack_size(item: String) -> Result<((u32, u32), Rest), Error> {
             ))
         }
     };
-    let rest: String = lines.collect();
+    let rest: String = gather(lines);
 
     match relevant_line.starts_with("Stack Size: ") {
         true => {
@@ -194,6 +202,16 @@ fn parse_stack_size(item: String) -> Result<((u32, u32), Rest), Error> {
 
 fn generate_error(reason: String) -> Error {
     Error::new(ErrorKind::InvalidData, reason)
+}
+
+fn gather(mut t: Lines) -> String {
+    let first_line = t.next().unwrap().to_string();
+
+    t.fold(first_line, |mut acc, line| {
+        acc.push('\n');
+        acc.push_str(line);
+        acc
+    })
 }
 
 #[cfg(test)]
@@ -344,7 +362,7 @@ mod test {
 
         let item = result.unwrap();
 
-        assert_eq!(item.name, "Essence Of Spite".to_string());
+        assert_eq!(item.name, "Shrieking Essence of Spite".to_string());
         assert_eq!(item.rarity, ItemRarity::Currency);
     }
 
@@ -394,5 +412,14 @@ mod test {
         assert_eq!(item.requirements.unwrap().level, 68);
         // Inaccurate test, but no matter for this purpose.
         assert_eq!(item.affixes.len(), 7);
+    }
+
+    #[test]
+    fn should_preserve_newlines() {
+        let test_string = String::from("a\nb\nc\nd");
+        let mut lines = test_string.lines();
+        let _first_line = lines.next().unwrap();
+        let rest = gather(lines);
+        assert_eq!(rest, "b\nc\nd");
     }
 }
