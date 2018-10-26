@@ -20,15 +20,11 @@ fn parse_tooltip(content: String) -> Result<Item, Error> {
 
 fn parse_currency(rest: String) -> Result<Item, Error> {
     let (name, name_rest) = parse_name(rest)?;
-    println!("first divider");
     let first_divider = parse_divider(name_rest)?;
-    println!("first divider");
     let (stack_size, stack_rest) = parse_stack_size(first_divider)?;
     let second_div = parse_divider(stack_rest)?;
-    println!("first divider");
     let (affixes, affixes_rest) = parse_affixes(second_div)?;
     let third_div = parse_divider(affixes_rest)?;
-    println!("first divider");
     let desc = parse_description(third_div)?;
 
     Ok(Item {
