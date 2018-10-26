@@ -208,11 +208,10 @@ mod test {
             let test_string = "Foo\nBar\n--------\nBaz".to_string();
             let res = parse_affixes(test_string);
 
-            println!("{:?}", res);
             assert!(res.is_ok());
 
             let (affixes, rest) = res.unwrap();
-            assert_eq!(rest, "Baz".to_string());
+            assert_eq!(rest, "--------\nBaz".to_string());
             assert_eq!(affixes.len(), 2);
             assert_eq!(affixes[0], "Foo".to_string());
             assert_eq!(affixes[1], "Bar".to_string());
@@ -293,7 +292,6 @@ mod test {
             let test_string = "Stack Size: 10".to_string();
             let res = parse_stack_size(test_string);
 
-            println!("{:?}", res);
             assert!(res.is_err());
         }
     }
