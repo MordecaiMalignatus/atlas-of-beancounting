@@ -11,7 +11,7 @@ fn parse_tooltip(content: String) -> Result<Item, Error> {
 
     match rarity {
         ItemRarity::Currency => parse_currency(rest),
-        ItemRarity::DivinationCard => unimplemented!(),
+        ItemRarity::DivinationCard => parse_divination_cards(rest),
         ItemRarity::Magical | ItemRarity::Normal | ItemRarity::Rare | ItemRarity::Unique => {
             unimplemented!()
         }
@@ -36,6 +36,28 @@ fn parse_currency(rest: String) -> Result<Item, Error> {
         item_level: 0,
         requirements: None,
         sockets: None,
+    })
+}
+
+fn parse_divination_cards(item: String) -> Result<Item, Error> {
+    let (name, rest) = parse_name(item)?;
+    let rest = parse_divider(rest)?;
+    let (stacks, rest) = parse_stack_size(rest)?;
+    let rest = parse_divider(rest)?;
+    let (affixes, rest) = parse_affixes(rest)?;
+    let rest = parse_divider(rest)?;
+    let description = parse_description(rest)?;
+
+    Ok(Item {
+        rarity: ItemRarity::DivinationCard,
+        name: name,
+        stack_size: stacks,
+        affixes: affixes,
+        description: description,
+
+        requirements: None,
+        sockets: None,
+        item_level: 0
     })
 }
 
@@ -349,6 +371,7 @@ mod test {
         let item = result.unwrap();
 
         assert_eq!(item.name, "Chaos Orb".to_string());
+        assert_eq!(item.affixes.len(), 1);
         assert_eq!(item.rarity, ItemRarity::Currency);
     }
 
