@@ -201,7 +201,10 @@ fn generate_error(reason: String) -> Error {
 }
 
 fn gather(mut t: Lines) -> String {
-    let first_line = t.next().unwrap().to_string();
+    let first_line = match t.next() {
+        Some(x) => x.to_string(),
+        None => return String::new()
+    };
 
     t.fold(first_line, |mut acc, line| {
         acc.push('\n');
