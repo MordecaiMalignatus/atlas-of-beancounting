@@ -2,6 +2,10 @@ use std::io::Error;
 use std::io::ErrorKind;
 use std::str::Lines;
 use types::item::Item;
+use types::item::Currency;
+use types::item::DivinationCard;
+use types::item::Gear;
+use types::item::Map;
 use types::item::ItemRarity;
 use types::item::StackSize;
 
@@ -28,12 +32,12 @@ fn parse_currency(rest: String) -> Result<Item, Error> {
     let third_div = parse_divider(affixes_rest)?;
     let desc = parse_description(third_div)?;
 
-    Ok(Item::Currency {
+    Ok(Item::Currency(Currency {
         name: name,
         stack_size: stack_size,
         affixes: affixes,
         description: desc,
-    })
+    }))
 }
 
 fn parse_divination_cards(item: String) -> Result<Item, Error> {
@@ -45,12 +49,12 @@ fn parse_divination_cards(item: String) -> Result<Item, Error> {
     let rest = parse_divider(rest)?;
     let description = parse_description(rest)?;
 
-    Ok(Item::DivinationCard {
+    Ok(Item::DivinationCard(DivinationCard {
         name: name,
         stack_size: stacks,
         reward: affixes.remove(0), // There's only a single thing divcards grant.
         description: description,
-    })
+    }))
 }
 
 // Parser Combinators.
@@ -364,16 +368,11 @@ mod test {
         let result = parse_tooltip(chaos_orb);
 
         match result.unwrap() {
-            Item::Currency {
-                name: name,
-                affixes: affixes,
-                stack_size: stacks,
-                ..
-            } => {
-                assert_eq!(name, "Chaos Orb".to_string());
-                assert_eq!(affixes.len(), 1);
+            Item::Currency(c) => {
+                assert_eq!(c.name, "Chaos Orb".to_string());
+                assert_eq!(c.affixes.len(), 1);
                 assert_eq!(
-                    stacks,
+                    c.stack_size,
                     StackSize {
                         current: 20,
                         max: 10,
@@ -390,15 +389,10 @@ mod test {
         let result = parse_tooltip(essence);
 
         match result.unwrap() {
-            Item::Currency {
-                name: name,
-                affixes: affixes,
-                stack_size: stacks,
-                ..
-            } => {
-                assert_eq!(affixes.len(), 4);
-                assert_eq!(stacks, StackSize { current: 1, max: 9 });
-                assert_eq!(name, "Shrieking Essence of Spite".to_string());
+            Item::Currency(c) => {
+                assert_eq!(c.affixes.len(), 4);
+                assert_eq!(c.stack_size, StackSize { current: 1, max: 9 });
+                assert_eq!(c.name, "Shrieking Essence of Spite".to_string());
             }
             _ => assert!(false),
         }
@@ -412,19 +406,12 @@ mod test {
         assert!(result.is_ok());
 
         match result.unwrap() {
-            Item::Map {
-                name: name,
-                tier: tier,
-                item_level: ilevel,
-                affixes: affixes,
-                rarity: rarity,
-                ..
-            } => {
-                assert_eq!(name, "Shaped Cage Map".to_string());
-                assert_eq!(rarity, ItemRarity::Normal);
-                assert_eq!(ilevel, 75);
-                assert_eq!(affixes.len(), 0);
-                assert_eq!(tier, 8);
+            Item::Map(m) => {
+                assert_eq!(m.name, "Shaped Cage Map".to_string());
+                assert_eq!(m.rarity, ItemRarity::Normal);
+                assert_eq!(m.item_level, 75);
+                assert_eq!(m.affixes.len(), 0);
+                assert_eq!(m.tier, 8);
             }
             _ => assert!(false),
         }
@@ -438,15 +425,11 @@ mod test {
         assert!(result.is_ok());
 
         match result.unwrap() {
-            Item::DivinationCard {
-                name: name,
-                reward: reward,
-                stack_size: stacks,
-                ..
-            } => {
-                assert_eq!(name, "Heterochromia".to_string());
-                assert_eq!(reward, "Two-Stone Ring".to_string());
-                assert_eq!(stacks, StackSize { current: 1, max: 2 });
+            Item::DivinationCard(c)
+                => {
+                assert_eq!(c.name, "Heterochromia".to_string());
+                assert_eq!(c.reward, "Two-Stone Ring".to_string());
+                assert_eq!(c.stack_size, StackSize { current: 1, max: 2 });
             }
             _ => assert!(false),
         }
@@ -460,20 +443,13 @@ mod test {
         assert!(result.is_ok());
 
         match result.unwrap() {
-            Item::Gear {
-                name: name,
-                rarity: rarity,
-                affixes: affixes,
-                requirements: req,
-                item_level: ilevel,
-                ..
-            } => {
-                assert_eq!(name, "Inpulsa's Broken Heart".to_string());
-                assert_eq!(rarity, ItemRarity::Unique);
-                assert_eq!(req.level, 68);
-                assert_eq!(ilevel, 74);
+            Item::Gear(g) => {
+                assert_eq!(g.name, "Inpulsa's Broken Heart".to_string());
+                assert_eq!(g.rarity, ItemRarity::Unique);
+                assert_eq!(g.requirements.level, 68);
+                assert_eq!(g.item_level, 74);
                 // Inaccurate test, but no matter for this purpose.
-                assert_eq!(affixes.len(), 7);
+                assert_eq!(g.affixes.len(), 7);
             }
             _ => assert!(false),
         }

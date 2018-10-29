@@ -1,36 +1,48 @@
 
 #[derive(Debug)]
 pub enum Item {
-    Gear {
-        name: String,
-        rarity: ItemRarity,
-        affixes: Vec<String>,
-        sockets: String,
-        item_level: u32,
-        requirements: Requirements,
-    },
-    Currency {
-        name: String,
-        stack_size: StackSize,
-        affixes: Vec<String>,
-        description: String,
-    },
-    DivinationCard {
-        name: String,
-        stack_size: StackSize,
-        reward: String,
-        description: String,
-    },
-    Map {
-        name: String,
-        tier: u32,
-        affixes: Vec<String>,
-        item_level: u32,
-        rarity: ItemRarity,
-    },
+    Gear(Gear),
+    Currency(Currency),
+    DivinationCard(DivinationCard),
+    Map(Map),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
+pub struct Gear {
+    pub name: String,
+    pub rarity: ItemRarity,
+    pub affixes: Vec<String>,
+    pub sockets: String,
+    pub item_level: u32,
+    pub requirements: Requirements,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Currency {
+    pub name: String,
+    pub stack_size: StackSize,
+    pub affixes: Vec<String>,
+    pub description: String,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct DivinationCard {
+    pub name: String,
+    pub stack_size: StackSize,
+    pub reward: String,
+    pub description: String,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Map {
+    pub name: String,
+    pub tier: u32,
+    pub affixes: Vec<String>,
+    pub item_level: u32,
+    pub rarity: ItemRarity,
+}
+
+#[derive(Debug, PartialEq)]
 pub struct Requirements {
     pub level: u32,
     pub strength: u32,
