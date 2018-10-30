@@ -23,6 +23,30 @@ fn parse_tooltip(content: String) -> Result<Item, Error> {
     }
 }
 
+fn parse_map(name: String, rarity: ItemRarity, rest: String) -> Result<Item, Error> {
+    let rest = parse_divider(rest)?;
+    let (tier, rest) = parse_tier(rest)?;
+    let rest = parse_divider(rest)?;
+    let (item_level, rest) = parse_item_level(rest)?;
+    let rest = parse_divider(rest)?;
+    let (affixes, rest) = parse_affixes(rest)?;
+    let rest = parse_divider(rest)?;
+    let _desc = parse_description(rest)?;
+
+    Ok(Item::Map(Map {
+        kind: String::new(),
+        quality: 0,
+        item_quantity: 0,
+        item_rarity: 0,
+        pack_size: 0,
+        name: name,
+        rarity: rarity,
+        affixes: affixes,
+        tier: tier,
+        item_level: item_level,
+    }))
+}
+
 fn parse_currency(rest: String) -> Result<Item, Error> {
     let (name, name_rest) = parse_name(rest)?;
     let first_divider = parse_divider(name_rest)?;
@@ -414,6 +438,28 @@ mod test {
                 assert_eq!(m.tier, 8);
             }
             _ => assert!(false),
+        }
+    }
+
+    #[test]
+    fn should_parse_complex_maps() {
+        let sugs = include_str!("../resources/shaped-underground-sea").to_string();
+        match parse_tooltip(sugs) {
+            Ok(Item::Map(map)) => {
+                assert_eq!(map.tier, 11);
+                assert_eq!(map.kind, "Shaped Underground Sea Map".to_string());
+                assert_eq!(map.item_level, 79);
+                assert_eq!(map.quality, 20);
+                assert_eq!(map.item_quantity, 142);
+                assert_eq!(map.item_rarity, 72);
+                assert_eq!(map.pack_size, 46);
+                assert_eq!(map.affixes.len(), 12);
+            },
+            Ok(_) => assert!(false),
+            Err(some_err) => {
+                println!("{:?}", some_err);
+                assert!(false)
+            }
         }
     }
 

@@ -36,7 +36,12 @@ pub struct DivinationCard {
 #[derive(Debug, PartialEq)]
 pub struct Map {
     pub name: String,
+    pub kind: String,
     pub tier: u32,
+    pub item_quantity: u32,
+    pub item_rarity: u32,
+    pub quality: u32,
+    pub pack_size: u32,
     pub affixes: Vec<String>,
     pub item_level: u32,
     pub rarity: ItemRarity,
