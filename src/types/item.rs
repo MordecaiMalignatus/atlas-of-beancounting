@@ -70,3 +70,11 @@ pub enum ItemRarity {
     Rare,
     Unique,
 }
+
+pub type Rest = String;
+
+#[derive(Debug, PartialEq)]
+pub enum KeyCapture {
+    Capture(String, Rest),
+    NoCapture(Rest),
+}

@@ -1,15 +1,15 @@
 use std::io::Error;
 use std::io::ErrorKind;
 use std::str::Lines;
-use types::item::Item;
 use types::item::Currency;
 use types::item::DivinationCard;
-use types::item::Gear;
-use types::item::Map;
+use types::item::Item;
 use types::item::ItemRarity;
+use types::item::KeyCapture;
+use types::item::KeyCapture::{Capture, NoCapture};
+use types::item::Map;
+use types::item::Rest;
 use types::item::StackSize;
-
-type Rest = String;
 
 fn parse_tooltip(content: String) -> Result<Item, Error> {
     let (rarity, rest) = parse_rarity(content)?;
@@ -82,6 +82,64 @@ fn parse_divination_cards(item: String) -> Result<Item, Error> {
 }
 
 // Parser Combinators.
+
+fn capture_required_line(item: String) -> Result<(String, Rest), Error> {
+    let mut lines = item.lines();
+    let name = match lines.next() {
+        Some(x) => x.to_string(),
+        None => return Err(generate_error(format!("Can't capture line: Empty string."))),
+    };
+    let rest: String = gather(lines);
+
+    Ok((name, rest))
+}
+
+fn capture_key_line(item: String, key: &str) -> Result<KeyCapture, Error> {
+    let mut lines = item.lines();
+    let first_line = match lines.next() {
+        Some(x) => x.to_string(),
+        None => {
+            return Err(generate_error(format!(
+                "Can't capture key {:?}, empty string.",
+                key
+            )))
+        }
+    };
+
+    match first_line.starts_with(key) {
+        true => {
+            // Keys are specified in form of "Key: Value", so we can add 2 to drop colon and space.
+            let value_part = first_line[(key.len() + 2)..].to_string();
+            Ok(Capture(value_part, gather(lines)))
+        }
+        false => Ok(NoCapture(item.clone())),
+    }
+}
+
+fn parse_item_level(item: String) -> Result<(u32, Rest), Error> {
+    Ok((0, item))
+}
+
+fn parse_tier(item: String) -> Result<(u32, Rest), Error> {
+    let res = capture_key_line(item, "Map Tier")?;
+    match res {
+        Capture(tier_string, rest) => {
+            // Tier strings might include an "(augmented)", which would mess up parsing.
+            // I also highly doubt tiers are going to reach higher than 99.
+            let relevant_parts = &tier_string[..1];
+            match relevant_parts.parse::<u32>() {
+                Ok(tier) => Ok((tier, rest)),
+                Err(e) => Err(generate_error(format!(
+                    "Could not parse tier into number, error: {:?}",
+                    e
+                ))),
+            }
+        }
+        NoCapture(_rest) => Err(generate_error(format!(
+            "Could not parse map tier, key not found"
+        ))),
+    }
+}
 
 fn parse_affixes(item: String) -> Result<(Vec<String>, Rest), Error> {
     if item.is_empty() {
@@ -176,14 +234,7 @@ fn parse_divider(item: String) -> Result<Rest, Error> {
 }
 
 fn parse_name(item: String) -> Result<(String, Rest), Error> {
-    let mut lines = item.lines();
-    let name = match lines.next() {
-        Some(x) => x.to_string(),
-        None => return Err(generate_error(format!("Can't parse name: Empty string."))),
-    };
-    let rest: String = gather(lines);
-
-    Ok((name, rest))
+    capture_required_line(item)
 }
 
 fn parse_stack_size(item: String) -> Result<(StackSize, Rest), Error> {
@@ -471,8 +522,7 @@ mod test {
         assert!(result.is_ok());
 
         match result.unwrap() {
-            Item::DivinationCard(c)
-                => {
+            Item::DivinationCard(c) => {
                 assert_eq!(c.name, "Heterochromia".to_string());
                 assert_eq!(c.reward, "Two-Stone Ring".to_string());
                 assert_eq!(c.stack_size, StackSize { current: 1, max: 2 });
