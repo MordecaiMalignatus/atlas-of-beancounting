@@ -118,6 +118,10 @@ fn capture_key_line(item: String, key: &str) -> Result<KeyCapture, Error> {
 
 // Applications. Concrete attributes that will be parsed.
 
+fn parse_kind(item: String) -> Result<(String, Rest), Error> {
+    capture_required_line(item)
+}
+
 fn parse_item_level(item: String) -> Result<(u32, Rest), Error> {
     let cap = match capture_key_line(item, "Item Level") {
         Ok(capture) => capture,
