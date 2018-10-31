@@ -116,8 +116,26 @@ fn capture_key_line(item: String, key: &str) -> Result<KeyCapture, Error> {
     }
 }
 
+// Applications. Concrete attributes that will be parsed.
+
 fn parse_item_level(item: String) -> Result<(u32, Rest), Error> {
-    Ok((0, item))
+    let cap = match capture_key_line(item, "Item Level") {
+        Ok(capture) => capture,
+        Err(e) => return Err(generate_error(format!("Can't parse Item Level: {}", e))),
+    };
+    match cap {
+        Capture(ilvl, rest) => match ilvl.parse::<u32>() {
+            Ok(x) => Ok((x, rest)),
+            Err(_e) => Err(generate_error(format!(
+                "Can't parse Item Level: Value '{:?}' can't be parsed",
+                ilvl
+            ))),
+        },
+        NoCapture(_rest) => Err(generate_error(format!(
+            "Can't parse Item Level: Key not found in tool tip {:?}",
+            item
+        ))),
+    }
 }
 
 fn parse_tier(item: String) -> Result<(u32, Rest), Error> {
@@ -505,7 +523,7 @@ mod test {
                 assert_eq!(map.item_rarity, 72);
                 assert_eq!(map.pack_size, 46);
                 assert_eq!(map.affixes.len(), 12);
-            },
+            }
             Ok(_) => assert!(false),
             Err(some_err) => {
                 println!("{:?}", some_err);
