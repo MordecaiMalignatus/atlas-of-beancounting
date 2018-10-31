@@ -160,6 +160,20 @@ fn capture_key_line(item: String, key: &str) -> Result<KeyCapture, Error> {
     }
 }
 
+fn capture_required_number_key(item: String, key: &str) -> Result<(u32, Rest), Error> {
+    let cap = capture_key_line(item, key)?;
+    match cap {
+        Capture(value, rest) => match value.parse::<u32>() {
+            Ok(x) => Ok((x, rest)),
+            Err(e) => Err(generate_error(format!(
+                "Can't parse value {} of key {} to number.",
+                value, key
+            ))),
+        },
+        NoCapture(rest) => Err(generate_error(format!("Can't find key {} in item.", key))),
+    }
+}
+
 // Applications. Concrete attributes that will be parsed.
 
 fn parse_kind(item: String) -> Result<(String, Rest), Error> {
