@@ -69,7 +69,7 @@ fn parse_uncommon_map(
     let (quant, rest) = parse_item_quantity(rest)?;
     let (item_rarity, rest) = parse_item_rarity(rest)?;
     let (pack_size, rest) = parse_pack_size(rest)?;
-    let (qual, rest) = parse_quality(rest)?;
+    let (qual, rest) = parse_item_quality(rest)?;
     let rest = parse_divider(rest)?;
     let (ilvl, rest) = parse_item_level(rest)?;
     let rest = parse_divider(rest)?;
@@ -175,6 +175,23 @@ fn capture_required_number_key(item: String, key: &str) -> Result<(u32, Rest), E
 }
 
 // Applications. Concrete attributes that will be parsed.
+
+// TODO all these have the format "+111% (augmented)". Regex?
+fn parse_item_quantity(item: String) -> Result<(u32, Rest), Error> {
+    capture_required_number_key(item, "Item Quantity")
+}
+
+fn parse_item_rarity(item: String) -> Result<(u32, Rest), Error> {
+    capture_required_number_key(item, "Item Rarity")
+}
+
+fn parse_pack_size(item: String) -> Result<(u32, Rest), Error> {
+    capture_required_number_key(item, "Monster Pack Size")
+}
+
+fn parse_item_quality(item: String) -> Result<(u32, Rest), Error> {
+    capture_required_number_key(item, "Quality")
+}
 
 fn parse_kind(item: String) -> Result<(String, Rest), Error> {
     capture_required_line(item)
@@ -558,17 +575,18 @@ mod test {
         let cage = include_str!("../resources/shaped-cage").to_string();
         let result = parse_tooltip(cage);
 
-        assert!(result.is_ok());
-
-        match result.unwrap() {
-            Item::Map(m) => {
+        match result {
+            Ok(Item::Map(m)) => {
                 assert_eq!(m.name, Some("Shaped Cage Map".to_string()));
                 assert_eq!(m.rarity, ItemRarity::Normal);
                 assert_eq!(m.item_level, 75);
                 assert_eq!(m.affixes.len(), 0);
                 assert_eq!(m.tier, 8);
             }
-            _ => assert!(false),
+            Ok(_) => assert!(false),
+            Err(e) => {
+                println!("{:?}", e);
+                assert!(false)},
         }
     }
 
