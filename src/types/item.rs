@@ -35,7 +35,7 @@ pub struct DivinationCard {
 
 #[derive(Debug, PartialEq)]
 pub struct Map {
-    pub name: String,
+    pub name: Option<String>,
     pub kind: String,
     pub tier: u32,
     pub item_quantity: u32,

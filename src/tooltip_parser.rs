@@ -23,7 +23,7 @@ fn parse_tooltip(content: String) -> Result<Item, Error> {
     }
 }
 
-fn parse_map(name: String, rarity: ItemRarity, rest: String) -> Result<Item, Error> {
+fn parse_map(name: Option<String>, kind: String, rarity: ItemRarity, rest: String) -> Result<Item, Error> {
     let rest = parse_divider(rest)?;
     let (tier, rest) = parse_tier(rest)?;
     let rest = parse_divider(rest)?;
@@ -81,7 +81,7 @@ fn parse_divination_cards(item: String) -> Result<Item, Error> {
     }))
 }
 
-// Parser Combinators.
+// Parsers.
 
 fn capture_required_line(item: String) -> Result<(String, Rest), Error> {
     let mut lines = item.lines();
@@ -500,7 +500,7 @@ mod test {
 
         match result.unwrap() {
             Item::Map(m) => {
-                assert_eq!(m.name, "Shaped Cage Map".to_string());
+                assert_eq!(m.name, Some("Shaped Cage Map".to_string()));
                 assert_eq!(m.rarity, ItemRarity::Normal);
                 assert_eq!(m.item_level, 75);
                 assert_eq!(m.affixes.len(), 0);
