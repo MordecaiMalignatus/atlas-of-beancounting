@@ -20,7 +20,7 @@ fn parse_tooltip(content: String) -> Result<Item, Error> {
         ItemRarity::Normal => {
             let (kind, rest) = parse_kind(rest)?;
             match kind.contains("Map") {
-                true => parse_map(None, kind, rarity, rest),
+                true => parse_common_map(kind, rarity, rest),
                 false => unimplemented!(),
             }
         }
@@ -28,14 +28,14 @@ fn parse_tooltip(content: String) -> Result<Item, Error> {
             let (name, rest) = parse_name(rest)?;
             let (kind, rest) = parse_kind(rest)?;
             match kind.contains("Map") {
-                true => parse_map(Some(name), kind, rarity, rest),
+                true => parse_uncommon_map(name, kind, rarity, rest),
                 false => unimplemented!(),
             }
         }
     }
 }
 
-fn parse_map(name: Option<String>, kind: String, rarity: ItemRarity, rest: String) -> Result<Item, Error> {
+fn parse_common_map(kind: String, rarity: ItemRarity, rest: String) -> Result<Item, Error> {
     let rest = parse_divider(rest)?;
     let (tier, rest) = parse_tier(rest)?;
     let rest = parse_divider(rest)?;
@@ -51,11 +51,43 @@ fn parse_map(name: Option<String>, kind: String, rarity: ItemRarity, rest: Strin
         item_quantity: 0,
         item_rarity: 0,
         pack_size: 0,
-        name: name,
+        name: None,
         rarity: rarity,
         affixes: affixes,
         tier: tier,
         item_level: item_level,
+    }))
+}
+
+fn parse_uncommon_map(
+    name: String,
+    kind: String,
+    rarity: ItemRarity,
+    rest: String,
+) -> Result<Item, Error> {
+    let (tier, rest) = parse_tier(rest)?;
+    let (quant, rest) = parse_item_quantity(rest)?;
+    let (item_rarity, rest) = parse_item_rarity(rest)?;
+    let (pack_size, rest) = parse_pack_size(rest)?;
+    let (qual, rest) = parse_quality(rest)?;
+    let rest = parse_divider(rest)?;
+    let (ilvl, rest) = parse_item_level(rest)?;
+    let rest = parse_divider(rest)?;
+    let (affixes, rest) = parse_affixes(rest)?;
+    let rest = parse_divider(rest)?;
+    let desc = parse_description(rest)?;
+
+    Ok(Item::Map(Map {
+        kind: kind,
+        name: Some(name),
+        tier: tier,
+        rarity: rarity,
+        item_level: ilvl,
+        affixes: affixes,
+        item_quantity: quant,
+        item_rarity: item_rarity,
+        pack_size: pack_size,
+        quality: qual,
     }))
 }
 
