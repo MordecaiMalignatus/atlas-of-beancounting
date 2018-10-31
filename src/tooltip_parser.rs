@@ -17,8 +17,20 @@ fn parse_tooltip(content: String) -> Result<Item, Error> {
     match rarity {
         ItemRarity::Currency => parse_currency(rest),
         ItemRarity::DivinationCard => parse_divination_cards(rest),
-        ItemRarity::Magical | ItemRarity::Normal | ItemRarity::Rare | ItemRarity::Unique => {
-            unimplemented!()
+        ItemRarity::Normal => {
+            let (kind, rest) = parse_kind(rest)?;
+            match kind.contains("Map") {
+                true => parse_map(None, kind, rarity, rest),
+                false => unimplemented!(),
+            }
+        }
+        ItemRarity::Magical | ItemRarity::Rare | ItemRarity::Unique => {
+            let (name, rest) = parse_name(rest)?;
+            let (kind, rest) = parse_kind(rest)?;
+            match kind.contains("Map") {
+                true => parse_map(Some(name), kind, rarity, rest),
+                false => unimplemented!(),
+            }
         }
     }
 }
@@ -34,7 +46,7 @@ fn parse_map(name: Option<String>, kind: String, rarity: ItemRarity, rest: Strin
     let _desc = parse_description(rest)?;
 
     Ok(Item::Map(Map {
-        kind: String::new(),
+        kind: kind,
         quality: 0,
         item_quantity: 0,
         item_rarity: 0,
@@ -123,7 +135,7 @@ fn parse_kind(item: String) -> Result<(String, Rest), Error> {
 }
 
 fn parse_item_level(item: String) -> Result<(u32, Rest), Error> {
-    let cap = match capture_key_line(item, "Item Level") {
+    let cap = match capture_key_line(item.clone(), "Item Level") {
         Ok(capture) => capture,
         Err(e) => return Err(generate_error(format!("Can't parse Item Level: {}", e))),
     };
