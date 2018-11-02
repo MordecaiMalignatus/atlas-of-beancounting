@@ -41,8 +41,6 @@ fn parse_common_map(kind: String, rarity: ItemRarity, rest: String) -> Result<It
     let rest = parse_divider(rest)?;
     let (item_level, rest) = parse_item_level(rest)?;
     let rest = parse_divider(rest)?;
-    let (affixes, rest) = parse_affixes(rest)?;
-    let rest = parse_divider(rest)?;
     let _desc = parse_description(rest)?;
 
     Ok(Item::Map(Map {
@@ -53,7 +51,7 @@ fn parse_common_map(kind: String, rarity: ItemRarity, rest: String) -> Result<It
         pack_size: 0,
         name: None,
         rarity: rarity,
-        affixes: affixes,
+        affixes: Vec::new(),
         tier: tier,
         item_level: item_level,
     }))
@@ -577,7 +575,8 @@ mod test {
 
         match result {
             Ok(Item::Map(m)) => {
-                assert_eq!(m.name, Some("Shaped Cage Map".to_string()));
+                assert_eq!(m.kind, "Shaped Cage Map".to_string());
+                assert_eq!(m.name, None);
                 assert_eq!(m.rarity, ItemRarity::Normal);
                 assert_eq!(m.item_level, 75);
                 assert_eq!(m.affixes.len(), 0);
