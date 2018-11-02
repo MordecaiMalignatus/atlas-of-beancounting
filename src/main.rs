@@ -1,6 +1,8 @@
 extern crate chrono;
 extern crate clipboard;
 extern crate notify;
+extern crate regex;
+#[macro_use] extern crate lazy_static;
 
 mod clipboard_poller;
 mod log_watcher;
