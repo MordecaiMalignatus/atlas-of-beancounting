@@ -10,6 +10,7 @@ use types::item::KeyCapture::{Capture, NoCapture};
 use types::item::Map;
 use types::item::Rest;
 use types::item::StackSize;
+use regex::Regex;
 
 fn parse_tooltip(content: String) -> Result<Item, Error> {
     let (rarity, rest) = parse_rarity(content)?;
@@ -387,6 +388,23 @@ fn parse_stack_size(item: String) -> Result<(StackSize, Rest), Error> {
             "Line '{}' does not hold a valid stack size.",
             relevant_line
         ))),
+    }
+}
+
+fn extract_map_roll(roll: &str) -> Result<u32, Error> {
+    lazy_static! {
+        static ref MAP_ROLL: Regex = Regex::new(r"^+(\d*)% \(augmented\)$").unwrap();
+    }
+
+    match MAP_ROLL.captures(roll) {
+        Some(x) => {
+            let cap = x.get(1).unwrap().as_str();
+            match cap.parse::<u32>() {
+                Ok(x) => Ok(x),
+                Err(e) => Err(generate_error(format!("Can't parse regex result to u32: {:?}", e)))
+            }
+        },
+        None => Err(generate_error(format!("Map roll not parseable")))
     }
 }
 
