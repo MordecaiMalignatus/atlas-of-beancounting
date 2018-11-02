@@ -64,6 +64,7 @@ fn parse_uncommon_map(
     rarity: ItemRarity,
     rest: String,
 ) -> Result<Item, Error> {
+    let rest = parse_divider(rest)?;
     let (tier, rest) = parse_tier(rest)?;
     let (quant, rest) = parse_item_quantity(rest)?;
     let (item_rarity, rest) = parse_item_rarity(rest)?;
@@ -74,7 +75,7 @@ fn parse_uncommon_map(
     let rest = parse_divider(rest)?;
     let (affixes, rest) = parse_affixes(rest)?;
     let rest = parse_divider(rest)?;
-    let desc = parse_description(rest)?;
+    let _desc = parse_description(rest)?;
 
     Ok(Item::Map(Map {
         kind: kind,
@@ -162,12 +163,9 @@ fn capture_key_line(item: String, key: &str) -> Result<KeyCapture, Error> {
 fn capture_required_number_key(item: String, key: &str) -> Result<(u32, Rest), Error> {
     let cap = capture_key_line(item, key)?;
     match cap {
-        Capture(value, rest) => match value.parse::<u32>() {
-            Ok(x) => Ok((x, rest)),
-            Err(e) => Err(generate_error(format!(
-                "Can't parse value {} of key {} to number.",
-                value, key
-            ))),
+        Capture(value, rest) => match extract_map_roll(&value) {
+            Ok(val) => Ok((val, rest)),
+            Err(e) => Err(e)
         },
         NoCapture(rest) => Err(generate_error(format!("Can't find key {} in item.", key))),
     }
@@ -222,7 +220,7 @@ fn parse_tier(item: String) -> Result<(u32, Rest), Error> {
         Capture(tier_string, rest) => {
             // Tier strings might include an "(augmented)", which would mess up parsing.
             // I also highly doubt tiers are going to reach higher than 99.
-            let relevant_parts = &tier_string[..1];
+            let relevant_parts = &tier_string[0..2].trim();
             match relevant_parts.parse::<u32>() {
                 Ok(tier) => Ok((tier, rest)),
                 Err(e) => Err(generate_error(format!(
@@ -250,7 +248,7 @@ fn parse_affixes(item: String) -> Result<(Vec<String>, Rest), Error> {
             Some(x) => x.to_string(),
             None => {
                 return Err(generate_error(format!(
-                    "Can't parse affixes: EOF while parsing"
+                    "Can't parse affixes: EOF while parsing\nOriginal string: {}", item.clone()
                 )))
             }
         };
@@ -393,7 +391,7 @@ fn parse_stack_size(item: String) -> Result<(StackSize, Rest), Error> {
 
 fn extract_map_roll(roll: &str) -> Result<u32, Error> {
     lazy_static! {
-        static ref MAP_ROLL: Regex = Regex::new(r"^+(\d*)% \(augmented\)$").unwrap();
+        static ref MAP_ROLL: Regex = Regex::new(r"^\+(\d+)% \(augmented\)$").unwrap();
     }
 
     match MAP_ROLL.captures(roll) {
@@ -404,7 +402,7 @@ fn extract_map_roll(roll: &str) -> Result<u32, Error> {
                 Err(e) => Err(generate_error(format!("Can't parse regex result to u32: {:?}", e)))
             }
         },
-        None => Err(generate_error(format!("Map roll not parseable")))
+        None => Err(generate_error(format!("Map roll not parseable, roll: {}", roll)))
     }
 }
 
