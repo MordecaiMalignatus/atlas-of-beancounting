@@ -429,7 +429,31 @@ fn gather(mut t: Lines) -> String {
 mod test {
     use super::*;
 
-    mod affix_text {
+    mod tier_test {
+        use super::*;
+
+        #[test]
+        fn should_correctly_parse_correct_strings() {
+            let test_string = String::from("Map Tier: 18 (augmented)");
+            match parse_tier(test_string) {
+                Ok((x, _rest)) => {
+                    assert_eq!(x, 18);
+                }
+                Err(e) => {
+                    println!("{}", e);
+                    assert!(false);
+                }
+            }
+        }
+
+        #[test]
+        fn should_die_on_malformed_tiers() {
+            let test_string = String::from("Map Tier: OPOP (augmented)");
+            assert!(parse_tier(test_string).is_err());
+        }
+    }
+
+    mod affix_test {
         use super::*;
 
         #[test]
