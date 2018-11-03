@@ -4,28 +4,40 @@ Ever been curious about what the numbers we all like so much actually look like
 behind your mapping? Cool, me too.
 
 * Things to be done
-** TODO Look at notify package for the zone log
-*** TODO Try to guess where the file is before prompting for config [/]
-- [ ] Steam path
-- [ ] Standalone-launcher path
-*** TODO Look at how to structure the tail log for the zone log.
-** TODO How is the data in the end going to be structured?
-It's probably not going to be /that much/ data, so I could realistically store
-it all in a JSON file and keep it in memory.
+** TODO Data storage subsystem
+*** TODO Pull in SQLite for data storage (Rusqlite?)
+*** TODO Design data scheme for storage.
+** TODO Mastermind
+The mastermind is the centre of the calculations. It consumes event logs, drops,
+writes to the database and sends events to the frontend.
 
-Another alternative is SQLite.
-** TODO Find way to grab and cache the poe.ninja prices
-** TODO Devise rudimentary item parser that extracts names and kinds.
-** TODO Make copy of my event log on desktop and use it for testing.
-** TODO Use InputBot to catch and handle user input on separate thread
+It maintains a state machine that makes it possible to sort events to maps, so
+deaths can be mitigated. (A map entry to the same map after a death is taken to
+be the same map, unless a new one is explicitly triggered)
+** TODO Pricing
+*** TODO Find way to grab and cache the poe.ninja prices
+**** TODO Set up hyper and query the inofficial API
+***** TODO Pull in Serde to deal with the JSON.
+***** TODO Get a client setup for easy web requests, probably as pseudo actor.
+**** TODO Document the inofficial API via browser dev tools in POE.ninja.
+** TODO Front-end
+*** TODO Start project with parcel and vue.
+*** TODO Look into possible typed front-end languages, or maybe just vanilla ES6.
+*** TODO Find a way to do two-way communication between backend and frontend.
+*** TODO Send test events to the front-end to see if it all works out.
+** TODO Log Parser
+*** TODO Make copy of my event log on desktop and use it for testing.
+*** TODO Expand Message Enum with events found in the logs.
+** TODO User Input
+*** TODO Look into Input Bot
 https://github.com/obv-mikhail/InputBot
 
 This will probably add another thread that has to be handled to the picture, for
 hotkeys and "start new map" things.
-* Things done.
-** DONE Look at ~rust-webview~ for the UI parts.
-CLOSED: [2018-10-04 Thu 05:55]
-win-clipboard looks like a strong contender.
+*** TODO Handle "new maps"
+I need a hotkey that, when mousing over a map, copies that map to the clipboard
+(thus triggering parsing) and uses that as the new current map to which drops
+will be logged.
 * About the Project
 
 ** Why is this being written?
