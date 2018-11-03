@@ -2,6 +2,7 @@
 #[derive(Debug)]
 pub enum Item {
     Gear(Gear),
+    UniqueStub(UniqueStub),
     Currency(Currency),
     DivinationCard(DivinationCard),
     Map(Map),
@@ -15,6 +16,15 @@ pub struct Gear {
     pub sockets: String,
     pub item_level: u32,
     pub requirements: Requirements,
+}
+
+/// A stub to contain only the name of a Unique. This is for price checking
+/// reasons, for which a name is plenty. The full parsing of items, gear, and
+/// affix rolls is to be done, but a huge time sink, so stubbed out for the
+/// moment.
+#[derive(Debug, PartialEq)]
+pub struct UniqueStub {
+    pub name: String,
 }
 
 #[derive(Debug, PartialEq)]

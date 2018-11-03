@@ -1,16 +1,17 @@
+use regex::Regex;
 use std::io::Error;
 use std::io::ErrorKind;
 use std::str::Lines;
 use types::item::Currency;
 use types::item::DivinationCard;
 use types::item::Item;
+use types::item::UniqueStub;
 use types::item::ItemRarity;
 use types::item::KeyCapture;
 use types::item::KeyCapture::{Capture, NoCapture};
 use types::item::Map;
 use types::item::Rest;
 use types::item::StackSize;
-use regex::Regex;
 
 fn parse_tooltip(content: String) -> Result<Item, Error> {
     let (rarity, rest) = parse_rarity(content)?;
@@ -18,22 +19,33 @@ fn parse_tooltip(content: String) -> Result<Item, Error> {
     match rarity {
         ItemRarity::Currency => parse_currency(rest),
         ItemRarity::DivinationCard => parse_divination_cards(rest),
-        ItemRarity::Normal => {
-            let (kind, rest) = parse_kind(rest)?;
-            match kind.contains("Map") {
-                true => parse_common_map(kind, rarity, rest),
-                false => unimplemented!(),
-            }
-        }
+        ItemRarity::Normal => parse_common_item(rest),
         ItemRarity::Magical | ItemRarity::Rare | ItemRarity::Unique => {
-            let (name, rest) = parse_name(rest)?;
-            let (kind, rest) = parse_kind(rest)?;
-            match kind.contains("Map") {
-                true => parse_uncommon_map(name, kind, rarity, rest),
-                false => unimplemented!(),
-            }
+            parse_uncommon_item(rest, rarity)
         }
     }
+}
+
+fn parse_common_item(rest: String) -> Result<Item, Error> {
+    let (kind, rest) = parse_kind(rest)?;
+    match kind.contains("Map") {
+        true => parse_common_map(kind, ItemRarity::Normal, rest),
+        false => unimplemented!(),
+    }
+}
+
+fn parse_uncommon_item(rest: String, rarity: ItemRarity) -> Result<Item, Error> {
+    let (name, rest) = parse_name(rest)?;
+    let (kind, rest) = parse_kind(rest)?;
+    if kind.contains("Map") {
+        return parse_uncommon_map(name, kind, rarity, rest);
+    }
+
+    if rarity == ItemRarity::Unique {
+        return Ok(Item::UniqueStub(UniqueStub { name: name }))
+    }
+
+    unimplemented!()
 }
 
 fn parse_common_map(kind: String, rarity: ItemRarity, rest: String) -> Result<Item, Error> {
@@ -165,7 +177,7 @@ fn capture_required_number_key(item: String, key: &str) -> Result<(u32, Rest), E
     match cap {
         Capture(value, rest) => match extract_map_roll(&value) {
             Ok(val) => Ok((val, rest)),
-            Err(e) => Err(e)
+            Err(e) => Err(e),
         },
         NoCapture(rest) => Err(generate_error(format!("Can't find key {} in item.", key))),
     }
@@ -248,7 +260,8 @@ fn parse_affixes(item: String) -> Result<(Vec<String>, Rest), Error> {
             Some(x) => x.to_string(),
             None => {
                 return Err(generate_error(format!(
-                    "Can't parse affixes: EOF while parsing\nOriginal string: {}", item.clone()
+                    "Can't parse affixes: EOF while parsing\nOriginal string: {}",
+                    item.clone()
                 )))
             }
         };
@@ -399,10 +412,16 @@ fn extract_map_roll(roll: &str) -> Result<u32, Error> {
             let cap = x.get(1).unwrap().as_str();
             match cap.parse::<u32>() {
                 Ok(x) => Ok(x),
-                Err(e) => Err(generate_error(format!("Can't parse regex result to u32: {:?}", e)))
+                Err(e) => Err(generate_error(format!(
+                    "Can't parse regex result to u32: {:?}",
+                    e
+                ))),
             }
-        },
-        None => Err(generate_error(format!("Map roll not parseable, roll: {}", roll)))
+        }
+        None => Err(generate_error(format!(
+            "Map roll not parseable, roll: {}",
+            roll
+        ))),
     }
 }
 
@@ -625,7 +644,8 @@ mod test {
             Ok(_) => assert!(false),
             Err(e) => {
                 println!("{:?}", e);
-                assert!(false)},
+                assert!(false)
+            }
         }
     }
 
@@ -669,22 +689,14 @@ mod test {
     }
 
     #[test]
-    fn should_parse_uniques() {
+    fn should_parse_uniques_stubs() {
         let inpulsas = include_str!("../resources/inpulsas-broken-heart").to_string();
-        let result = parse_tooltip(inpulsas);
 
-        assert!(result.is_ok());
-
-        match result.unwrap() {
-            Item::Gear(g) => {
-                assert_eq!(g.name, "Inpulsa's Broken Heart".to_string());
-                assert_eq!(g.rarity, ItemRarity::Unique);
-                assert_eq!(g.requirements.level, 68);
-                assert_eq!(g.item_level, 74);
-                // Inaccurate test, but no matter for this purpose.
-                assert_eq!(g.affixes.len(), 7);
-            }
-            _ => assert!(false),
+        match parse_tooltip(inpulsas) {
+            Ok(Item::UniqueStub(u)) =>
+                assert_eq!(u.name, "Inpulsa's Broken Heart".to_string()),
+            Ok(_) => assert!(false),
+            Err(e) => assert!(false),
         }
     }
 
