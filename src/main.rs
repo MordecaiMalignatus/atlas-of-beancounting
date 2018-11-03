@@ -9,6 +9,7 @@ mod clipboard_poller;
 mod log_watcher;
 mod tooltip_parser;
 mod types;
+mod web_client;
 
 use std::sync::mpsc;
 use std::thread;
