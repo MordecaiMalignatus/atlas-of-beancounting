@@ -20,6 +20,8 @@ be the same map, unless a new one is explicitly triggered)
 ***** TODO Pull in Serde to deal with the JSON.
 ***** TODO Get a client setup for easy web requests, probably as pseudo actor.
 **** TODO Document the inofficial API via browser dev tools in POE.ninja.
+** TODO Meta
+*** TODO Translate this document to GH issues.
 ** TODO Front-end
 *** TODO Start project with parcel and vue.
 *** TODO Look into possible typed front-end languages, or maybe just vanilla ES6.

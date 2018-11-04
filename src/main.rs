@@ -4,12 +4,14 @@ extern crate notify;
 extern crate regex;
 #[macro_use] extern crate lazy_static;
 extern crate hyper;
+extern crate web_view;
 
 mod clipboard_poller;
 mod log_watcher;
 mod tooltip_parser;
 mod types;
 mod web_client;
+mod frontend;
 
 use std::sync::mpsc;
 use std::thread;
@@ -29,4 +31,6 @@ fn main() {
 
     println!("{:?}", clipboard_receiver.recv());
     println!("{:?}", log_receiver.recv());
+
+    frontend::spawn_frontend();
 }
