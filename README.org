@@ -27,6 +27,10 @@ be the same map, unless a new one is explicitly triggered)
 *** TODO Look into possible typed front-end languages, or maybe just vanilla ES6.
 *** TODO Find a way to do two-way communication between backend and frontend.
 *** TODO Send test events to the front-end to see if it all works out.
+*** TODO Make sure the frontend integrates well into the desktop world.
+- C-w should close the window but leave the daemon running,
+- C-q should quit everything,
+- C-, should open options,
 ** TODO Log Parser
 *** TODO Make copy of my event log on desktop and use it for testing.
 *** TODO Expand Message Enum with events found in the logs.
