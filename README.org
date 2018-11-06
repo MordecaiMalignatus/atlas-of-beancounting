@@ -24,11 +24,19 @@ be the same map, unless a new one is explicitly triggered)
 *** TODO Translate this document to GH issues.
 ** TODO Front-end
 *** TODO Start project with parcel and vue.
+*** TODO Build compile script
+This would need to inline everything into the ~index.html~ file, and build that
+before cargo builds the main thing, to then get inlined.
+
+Boscop, the author of web-view, posted this:
+https://www.npmjs.com/package/inline-assets
+which looks like what I want to inline everything. Just need to write a build
+pipe.
 *** TODO Look into possible typed front-end languages, or maybe just vanilla ES6.
 *** TODO Find a way to do two-way communication between backend and frontend.
 *** TODO Send test events to the front-end to see if it all works out.
 *** TODO Make sure the frontend integrates well into the desktop world.
-- C-w should close the window but leave the daemon running,
+- C-w should close the window but leave the daemon running (systray)
 - C-q should quit everything,
 - C-, should open options,
 ** TODO Log Parser
