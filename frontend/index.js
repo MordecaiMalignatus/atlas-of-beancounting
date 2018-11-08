@@ -33,5 +33,35 @@ class EventPipe extends React.Component {
     }
 }
 
+class MapDisplay extends React.Component {
+    constructor(props) {
+	super(props);
+	this.state = {
+	    currentMap: props.currentMap,
+	    previousMap: props.previousMap,
+	};
+
+	this.updateCurrentMap = this.updateCurrentMap.bind(this);
+    }
+
+    updateCurrentMap(newMap) {
+	this.setState({
+	    currentMap: newMap,
+	    previousMap: this.state.currentMap
+	});
+    }
+
+    render() {
+	return (<div className="fl w-50">
+		<div > Current Map:
+		<div className="f1">{this.state.currentMap}</div>
+		</div>
+		<div className="pt3"> Previous Map:
+		<div className="f2"> {this.state.previousMap} </div>
+		</div>
+		</div> );
+    }
+}
+
 const mountNode = document.getElementById("mount");
 ReactDom.render(<EventPipe />, mountNode);
