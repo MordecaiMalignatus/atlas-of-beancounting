@@ -4,7 +4,7 @@ import ReactDom from 'react-dom';
 const append = (oldArray, newItem) => [...oldArray, newItem];
 
 const Item = (props) => (
-	<div className="measure-narrow fl-20 bg-light-gray shadow-3 ma2 pa3 b--mid-grey">
+	<div className="measure-narrow fl-20 bg-light-gray shadow-4 ma2 pa3 ba b--mid-grey">
 	{props.name}
         </div>
 );
@@ -24,11 +24,11 @@ class EventPipe extends React.Component {
     }
 
     render() {
-	return <div className="helvetica fl w-20 br ma2 pa1 bg-moon-gray">
+	return <div className="fl w-20 ma2 pa1">
 	    <h1 className="h1">Event Pipe</h1>
 	    <button className="br2 pa2"onClick={this.addElement}> Add an element!</button>
 	    <div>There are {this.state.items.length} items in the pipe.</div>
-	    <div>{this.state.items}</div>
+	    <div className="item-center">{this.state.items}</div>
 	</div>;
     }
 }
@@ -63,5 +63,21 @@ class MapDisplay extends React.Component {
     }
 }
 
+class Display extends React.Component{
+    constructor(props) {
+	super(props);
+	this.state = { };
+    }
+
+    render() {
+	return (
+		<div className="fl w-100 helvetica">
+		<EventPipe />
+		<MapDisplay currentMap="Shaped Cage" previousMap="Shaped Underground Sea"/>
+		</div>
+	);
+    }
+}
+
 const mountNode = document.getElementById("mount");
-ReactDom.render(<EventPipe />, mountNode);
+ReactDom.render(<Display />, mountNode);
