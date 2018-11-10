@@ -4,9 +4,9 @@ import ReactDom from "react-dom";
 const append = (oldArray, newItem) => [...oldArray, newItem];
 
 const Item = props => (
-  <div className="fl w-75 bg-light-gray shadow-4 ma2 pa2 ba b--mid-grey">
+  <div className="fl w-75 bg-light-gray shadow-4 ma2 pa2">
     <div className="fl w-75 i pa2">{props.name}</div>
-    <div className="fl w-25 b pa2">{props.value}</div>
+    <div className="fr w-25 b pa2 tr">{props.value}</div>
   </div>
 );
 
@@ -18,7 +18,7 @@ class EventPipe extends React.Component {
   }
 
   addElement() {
-    const item = <Item name="Chaos Orb" value="1c" />;
+    const item = <Item name="Chaos Orb" value="100c" />;
     this.setState({
       items: append(this.state.items, item)
     });
