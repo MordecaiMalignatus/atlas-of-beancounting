@@ -40,44 +40,29 @@ class EventPipe extends React.Component {
   }
 }
 
-class MapDisplay extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      currentMap: props.currentMap,
-      previousMap: props.previousMap
-    };
-
-    this.updateCurrentMap = this.updateCurrentMap.bind(this);
-  }
-
-  updateCurrentMap(newMap) {
-    this.setState({
-      currentMap: newMap,
-      previousMap: this.state.currentMap
-    });
-  }
-
-  render() {
-    return (
-      <div className="fl w-50">
-        <div>
-          Current Map:
-          <div className="b f1">{this.state.currentMap}</div>
-        </div>
-        <div className="pt3">
-          Previous Map:
-          <div className="b f3 pt1"> {this.state.previousMap} </div>
-        </div>
+const MapDisplay = props => {
+  return (
+    <div className="fl w-50">
+      <div>
+        Current Map:
+        <div className="b f1">{props.currentMap}</div>
       </div>
-    );
-  }
-}
+      <div className="pt3">
+        Previous Map:
+        <div className="b f3 pt1"> {props.previousMap} </div>
+      </div>
+    </div>
+  );
+};
 
 class Display extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.dispatch = this.dispatch.bind(this);
+    window.dispatch = this.dispatch;
+    this.state = {
+      currentMap: "Shaped Cage"
+    };
   }
 
   render() {
@@ -85,11 +70,18 @@ class Display extends React.Component {
       <div className="fl w-100 helvetica">
         <EventPipe />
         <MapDisplay
-          currentMap="Shaped Cage"
-          previousMap="Shaped Underground Sea"
+          currentMap={this.state.currentMap}
+          previousMap={this.state.previousMap}
         />
       </div>
     );
+  }
+
+  dispatch(string) {
+    this.setState({
+      currentMap: string,
+      previousMap: this.state.currentMap
+    });
   }
 }
 
