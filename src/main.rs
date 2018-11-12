@@ -3,7 +3,7 @@ extern crate clipboard;
 extern crate notify;
 extern crate regex;
 #[macro_use] extern crate lazy_static;
-extern crate hyper;
+extern crate reqwest;
 extern crate web_view;
 
 mod clipboard_poller;
@@ -17,20 +17,20 @@ use std::sync::mpsc;
 use std::thread;
 
 fn main() {
-    println!("Hello, world!");
+    web_client::get_request();
 
-    let (clipboard_sender, clipboard_receiver) = mpsc::channel();
-    thread::spawn(move || {
-        clipboard_poller::watch_clipboard(clipboard_sender);
-    });
+    // let (clipboard_sender, clipboard_receiver) = mpsc::channel();
+    // thread::spawn(move || {
+    //     clipboard_poller::watch_clipboard(clipboard_sender);
+    // });
 
-    let (log_sender, log_receiver) = mpsc::channel();
-    thread::spawn(move || {
-        log_watcher::watch_zone_log(log_sender);
-    });
+    // let (log_sender, log_receiver) = mpsc::channel();
+    // thread::spawn(move || {
+    //     log_watcher::watch_zone_log(log_sender);
+    // });
 
-    println!("{:?}", clipboard_receiver.recv());
-    println!("{:?}", log_receiver.recv());
+    // println!("{:?}", clipboard_receiver.recv());
+    // println!("{:?}", log_receiver.recv());
 
-    frontend::spawn_frontend();
+    // frontend::spawn_frontend();
 }
