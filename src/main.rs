@@ -2,9 +2,12 @@ extern crate chrono;
 extern crate clipboard;
 extern crate notify;
 extern crate regex;
-#[macro_use] extern crate lazy_static;
 extern crate reqwest;
 extern crate web_view;
+extern crate serde;
+extern crate serde_json;
+#[macro_use] extern crate lazy_static;
+#[macro_use] extern crate serde_derive;
 
 mod clipboard_poller;
 mod log_watcher;
