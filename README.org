@@ -6,6 +6,13 @@ behind your mapping? Cool, me too.
 * Things to be done
 ** TODO Data storage subsystem
 *** TODO Pull in SQLite for data storage (Rusqlite?)
+https://github.com/jgallagher/rusqlite
+
+Yup, Rusqlite.
+*** DONE Find way to bundle Sqlite
+CLOSED: [2018-11-15 Thu 05:24]
+Rusqlite has a ~bundled~ feature flag that directly embeds a binary of SQLite
+for situations like windows. _fuck yessss_
 *** TODO Design data scheme for storage.
 ** TODO Mastermind
 The mastermind is the centre of the calculations. It consumes event logs, drops,
@@ -16,10 +23,21 @@ deaths can be mitigated. (A map entry to the same map after a death is taken to
 be the same map, unless a new one is explicitly triggered)
 ** TODO Pricing
 *** TODO Find way to grab and cache the poe.ninja prices
-**** TODO Set up hyper and query the inofficial API
-***** TODO Pull in Serde to deal with the JSON.
-***** TODO Get a client setup for easy web requests, probably as pseudo actor.
 **** TODO Document the inofficial API via browser dev tools in POE.ninja.
+**** TODO Write/use an expiring cache for the prices to make sure not to spam the poe.ninja API.
+https://github.com/jaemk/cached
+
+This is a good LRU cache, but it doesn't do persistence nor expiration. I kind
+of want redis, but I really do not want to embed redis.
+
+I think this can be just reduced down to a simple hashmap, with some sort of
+centrally-stored creation date. Ideally stored *in* the hashmap, but that might
+ruin my polymorphism.
+
+I think the cache is going to be kept in the central actor anyways, so I might
+have both available via the recursion struct/state.
+**** TODO Persist the cache to disk to avoid re-querying on boot.
+**** TODO Provide hook to invalidate the cache.
 ** TODO Meta
 *** TODO Translate this document to GH issues.
 ** TODO Front-end
