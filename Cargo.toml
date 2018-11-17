@@ -4,9 +4,8 @@ version = "0.1.0"
 authors = ["Mordecai Malignatus <az4reus@gmail.com>"]
 
 [features]
-default = [
-	"rusqlite/bundled" # Bundle Sqlite3 with the executable, from Rusqlite.
-]
+default = [ "rusqlite/bundled" # Bundle Sqlite3 with the executable, from Rusqlite.
+          ]
 
 [dependencies]
 notify = "4.0.6"

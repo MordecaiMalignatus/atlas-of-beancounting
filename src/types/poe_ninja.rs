@@ -34,5 +34,5 @@ pub struct NinjaDetails {
     pub id: u32,
     pub icon: String,
     pub poeTradeId: i32,
-    pub name: String
+    pub name: String,
 }

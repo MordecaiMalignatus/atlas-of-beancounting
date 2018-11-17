@@ -35,6 +35,8 @@ mod test {
 
     #[test]
     fn should_deserialize_correctly() {
+        // This can be considered successful if serde does not fail while trying
+        // to deserialize. It's also a good way to watch for API changes.
         match get_currency_prices(&Client::new()) {
             Ok(body) => {
                 println!("{:?}", body);

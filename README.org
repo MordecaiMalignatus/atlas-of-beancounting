@@ -24,12 +24,8 @@ be the same map, unless a new one is explicitly triggered)
 ** TODO Pricing
 *** TODO Find way to grab and cache the poe.ninja prices
 **** TODO Document the inofficial API via browser dev tools in POE.ninja.
+- Currency Overview: ~https://poe.ninja/api/currencyoverview?league=$LEAGUE&type=Currency&date=$DATE~
 **** TODO Write/use an expiring cache for the prices to make sure not to spam the poe.ninja API.
-https://github.com/jaemk/cached
-
-This is a good LRU cache, but it doesn't do persistence nor expiration. I kind
-of want redis, but I really do not want to embed redis.
-
 I think this can be just reduced down to a simple hashmap, with some sort of
 centrally-stored creation date. Ideally stored *in* the hashmap, but that might
 ruin my polymorphism.
