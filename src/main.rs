@@ -4,6 +4,7 @@ extern crate notify;
 extern crate regex;
 extern crate reqwest;
 extern crate web_view;
+extern crate rusqlite;
 extern crate serde;
 extern crate serde_json;
 #[macro_use] extern crate lazy_static;
