@@ -25,17 +25,18 @@ be the same map, unless a new one is explicitly triggered)
 *** TODO Find way to grab and cache the poe.ninja prices
 **** TODO Document the inofficial API via browser dev tools in POE.ninja.
 - Currency Overview: ~https://poe.ninja/api/currencyoverview?league=$LEAGUE&type=Currency&date=$DATE~
-**** TODO Write/use an expiring cache for the prices to make sure not to spam the poe.ninja API.
-I think this can be just reduced down to a simple hashmap, with some sort of
-centrally-stored creation date. Ideally stored *in* the hashmap, but that might
-ruin my polymorphism.
-
-I think the cache is going to be kept in the central actor anyways, so I might
-have both available via the recursion struct/state.
 **** TODO Persist the cache to disk to avoid re-querying on boot.
 **** TODO Provide hook to invalidate the cache.
-** TODO Meta
-*** TODO Translate this document to GH issues.
+This would probably just be a blanket refresh. Also something to be considered
+for the future, not necessarily alpha.
+**** TODO Implement cache seeding/restoring
+When the pricing subsystem is started, refresh/restore the cache to make sure we
+can rely on "Present but expired" being an accurate measure for "Item has a
+price in poe.ninja"
+**** TODO Provide selective cache refresh.
+I want to avoid blasting out 20 http requests whenever some cache misses, so I
+have to cache the category the item was found in in my cache, so I can re-query
+just that.
 ** TODO Front-end
 *** TODO Build compile script
 This would need to inline everything into the ~index.html~ file, and build that
@@ -45,11 +46,24 @@ Boscop, the author of web-view, posted this:
 https://www.npmjs.com/package/inline-assets
 which looks like what I want to inline everything. Just need to write a build
 pipe.
-*** TODO Send test events to the front-end to see if it all works out.
+*** TODO Look/Wait for release of web-view
+A lot of stuff changed in a few PRs that got recently merged, and I want to wait
+for a release, it would make the two-way communication so much easier.
+*** TODO Add "Send event to frontend" and "parse event from frontend"
+Or, in other words, implement the actual two-way pipe we need.
+
+This is somewhat blocked by Webview not having released changes past 0.2.1,
+which would be very nice to have first.
 *** TODO Make sure the frontend integrates well into the desktop world.
 - C-w should close the window but leave the daemon running (systray)
 - C-q should quit everything,
 - C-, should open options,
+*** TODO Provide a way to render drops immediately, filling out the pricing information later.
+This would basically necessitate a "Price Update" event that would fill out
+pricing to an ~Item~ already rendered in the event pipe.
+
+Immediate rendering, even when the price-cache misses, is important for
+responsiveness.
 ** TODO Log Parser
 *** TODO Make copy of my event log on desktop and use it for testing.
 *** TODO Expand Message Enum with events found in the logs.
