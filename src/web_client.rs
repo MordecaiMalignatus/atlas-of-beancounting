@@ -1,9 +1,60 @@
 use chrono::prelude::*;
 use reqwest::{Client, Error, Method, Request, Url};
 
+use std::collections::HashMap;
+use std::sync::mpsc::{Receiver, Sender};
+
 use constants::CURRENT_LEAGUE;
 use types::item::Item;
 use types::poe_ninja::NinjaCurrencyOverviewResponse;
+use types::pricing::{Price, PriceMessage};
+
+type PriceCache<'a> = HashMap<&'a str, CacheEntry>;
+
+struct CacheEntry {
+    price: Price,
+    expiration: DateTime<Local>,
+    // This is the "kind" of an item according to poe.ninja, like "Currency" or "Fragment".
+    source_category: String,
+}
+
+fn spawn_price_bot(recv: Receiver<PriceMessage>, sender: Sender<PriceMessage>) -> ! {
+    let mut price_cache: PriceCache = HashMap::new();
+
+    loop {
+        match recv.recv() {
+            Ok(o) => match o {
+                PriceMessage::Get { item: item } => match query_cache(&mut price_cache, &item) {
+                    Some(x) => match sender.send(PriceMessage::Response {
+                        item: item,
+                        price: x,
+                    }) {
+                        Ok(()) => {}
+                        Err(e) => panic!("Could not send price response: {}", e),
+                    },
+                    None => {
+                        // TODO: Send back dummy response to let the rest of the
+                        // system know that this item isn't priced by poe.ninja
+                    }
+                },
+                PriceMessage::Response { .. } => {
+                    panic!("How is a Response on the request channel?");
+                }
+            },
+
+            Err(e) => panic!("Error when receiving price request: {}", e),
+        }
+    }
+}
+
+fn query_cache(cache: &mut PriceCache, key: &str) -> Option<Price> {
+    let now = Local::now();
+    unimplemented!()
+}
+
+fn refresh_gear_cache(cache: &mut HashMap<&str, (Price, DateTime<Local>)>) -> Result<(), Error> {
+    Ok(())
+}
 
 fn get_currency_prices(client: &Client) -> Result<NinjaCurrencyOverviewResponse, Error> {
     let url = create_request_url("currencyoverview", "currency");
