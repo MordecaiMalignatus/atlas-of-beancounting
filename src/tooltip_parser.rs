@@ -69,7 +69,7 @@ fn parse_uncommon_item(rest: String, rarity: ItemRarity) -> Result<Item, Error> 
     }
 
     if rarity == ItemRarity::Unique {
-        return Ok(Item::UniqueStub(UniqueStub { name: name }))
+        return Ok(Item::UniqueStub(UniqueStub { name }));
     }
 
     unimplemented!()
@@ -84,16 +84,16 @@ fn parse_common_map(kind: String, rarity: ItemRarity, rest: String) -> Result<It
     let _desc = parse_description(rest)?;
 
     Ok(Item::Map(Map {
-        kind: kind,
+        kind,
         quality: 0,
         item_quantity: 0,
         item_rarity: 0,
         pack_size: 0,
         name: None,
-        rarity: rarity,
+        rarity,
         affixes: Vec::new(),
-        tier: tier,
-        item_level: item_level,
+        tier,
+        item_level,
     }))
 }
 
@@ -117,15 +117,15 @@ fn parse_uncommon_map(
     let _desc = parse_description(rest)?;
 
     Ok(Item::Map(Map {
-        kind: kind,
+        kind,
         name: Some(name),
-        tier: tier,
-        rarity: rarity,
+        tier,
+        rarity,
         item_level: ilvl,
-        affixes: affixes,
+        affixes,
         item_quantity: quant,
-        item_rarity: item_rarity,
-        pack_size: pack_size,
+        item_rarity,
+        pack_size,
         quality: qual,
     }))
 }
@@ -140,9 +140,9 @@ fn parse_currency(rest: String) -> Result<Item, Error> {
     let desc = parse_description(third_div)?;
 
     Ok(Item::Currency(Currency {
-        name: name,
-        stack_size: stack_size,
-        affixes: affixes,
+        name,
+        stack_size,
+        affixes,
         description: desc,
     }))
 }
@@ -157,10 +157,10 @@ fn parse_divination_cards(item: String) -> Result<Item, Error> {
     let description = parse_description(rest)?;
 
     Ok(Item::DivinationCard(DivinationCard {
-        name: name,
+        name,
         stack_size: stacks,
         reward: affixes.remove(0), // There's only a single thing divcards grant.
-        description: description,
+        description,
     }))
 }
 
@@ -206,7 +206,7 @@ fn capture_required_number_key(item: String, key: &str) -> Result<(u32, Rest), E
             Ok(val) => Ok((val, rest)),
             Err(e) => Err(e),
         },
-        NoCapture(rest) => Err(generate_error(format!("Can't find key {} in item.", key))),
+        NoCapture(_rest) => Err(generate_error(format!("Can't find key {} in item.", key))),
     }
 }
 
@@ -414,13 +414,7 @@ fn parse_stack_size(item: String) -> Result<(StackSize, Rest), Error> {
                 }
             };
 
-            Ok((
-                StackSize {
-                    current: current,
-                    max: max,
-                },
-                rest,
-            ))
+            Ok((StackSize { current, max }, rest))
         }
         false => Err(generate_error(format!(
             "Line '{}' does not hold a valid stack size.",
@@ -720,8 +714,7 @@ mod test {
         let inpulsas = include_str!("../resources/inpulsas-broken-heart").to_string();
 
         match parse_tooltip(inpulsas) {
-            Ok(Item::UniqueStub(u)) =>
-                assert_eq!(u.name, "Inpulsa's Broken Heart".to_string()),
+            Ok(Item::UniqueStub(u)) => assert_eq!(u.name, "Inpulsa's Broken Heart".to_string()),
             Ok(_) => assert!(false),
             Err(e) => assert!(false),
         }

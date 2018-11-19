@@ -5,7 +5,6 @@ use std::collections::HashMap;
 use std::sync::mpsc::{Receiver, Sender};
 
 use constants::CURRENT_LEAGUE;
-use types::item::Item;
 use types::poe_ninja::NinjaCurrencyOverviewResponse;
 use types::pricing::{Price, PriceMessage};
 
@@ -25,10 +24,7 @@ fn spawn_price_bot(recv: Receiver<PriceMessage>, sender: Sender<PriceMessage>) -
         match recv.recv() {
             Ok(o) => match o {
                 PriceMessage::Get { item: item } => match query_cache(&mut price_cache, &item) {
-                    Some(x) => match sender.send(PriceMessage::Response {
-                        item: item,
-                        price: x,
-                    }) {
+                    Some(price) => match sender.send(PriceMessage::Response { item, price }) {
                         Ok(()) => {}
                         Err(e) => panic!("Could not send price response: {}", e),
                     },
@@ -47,17 +43,17 @@ fn spawn_price_bot(recv: Receiver<PriceMessage>, sender: Sender<PriceMessage>) -
     }
 }
 
-fn query_cache(cache: &mut PriceCache, key: &str) -> Option<Price> {
-    let now = Local::now();
+fn query_cache(_cache: &mut PriceCache, _key: &str) -> Option<Price> {
+    let _now = Local::now();
     unimplemented!()
 }
 
-fn refresh_gear_cache(cache: &mut HashMap<&str, (Price, DateTime<Local>)>) -> Result<(), Error> {
+fn refresh_gear_cache(_cache: &mut HashMap<&str, (Price, DateTime<Local>)>) -> Result<(), Error> {
     Ok(())
 }
 
 fn get_currency_prices(client: &Client) -> Result<NinjaCurrencyOverviewResponse, Error> {
-    let url = create_request_url("currencyoverview", "currency");
+    let url = create_request_url("currencyoverview", "Currency");
     let request = Request::new(Method::GET, url);
     let mut response = client.execute(request)?;
 
@@ -73,8 +69,8 @@ fn get_currency_prices(client: &Client) -> Result<NinjaCurrencyOverviewResponse,
 fn create_request_url(endpoint: &str, kind: &str) -> Url {
     let today = Local::now().format("%Y-%m-%d").to_string();
     let string = format!(
-        "https://poe.ninja/api/data/{}?league={}&type=Currency&date={}",
-        endpoint, CURRENT_LEAGUE, today
+        "https://poe.ninja/api/data/{}?league={}&type={}&date={}",
+        endpoint, CURRENT_LEAGUE, kind, today
     );
 
     Url::parse(&string).unwrap()
