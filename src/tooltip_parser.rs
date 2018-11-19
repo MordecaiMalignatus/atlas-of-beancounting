@@ -2,16 +2,43 @@ use regex::Regex;
 use std::io::Error;
 use std::io::ErrorKind;
 use std::str::Lines;
+use std::sync::mpsc::{Receiver, Sender};
 use types::item::Currency;
 use types::item::DivinationCard;
 use types::item::Item;
-use types::item::UniqueStub;
 use types::item::ItemRarity;
 use types::item::KeyCapture;
 use types::item::KeyCapture::{Capture, NoCapture};
 use types::item::Map;
 use types::item::Rest;
 use types::item::StackSize;
+use types::item::UniqueStub;
+use types::clipboard_event::ClipboardEvent;
+
+pub fn spawn_tooltip_parser(
+    clipboard_receiver: Receiver<ClipboardEvent>,
+    parser_sender: Sender<Item>,
+) -> ! {
+    loop {
+        match clipboard_receiver.recv() {
+            Ok(ClipboardEvent{content}) => {
+                match parse_tooltip(content) {
+                    Ok(item) => {
+                        match parser_sender.send(item) {
+                            Ok(()) => {},
+                            Err(_) => panic!("Can't send over parser sender"),
+                        }
+                    },
+                    // Log in the future, NOP for now.
+                    Err(_) => {},
+                }
+            },
+            Err(_) => {
+                panic!("Can't receive from clipboard thread");
+            },
+        }
+    }
+}
 
 fn parse_tooltip(content: String) -> Result<Item, Error> {
     let (rarity, rest) = parse_rarity(content)?;
