@@ -77,6 +77,12 @@ hotkeys and "start new map" things.
 I need a hotkey that, when mousing over a map, copies that map to the clipboard
 (thus triggering parsing) and uses that as the new current map to which drops
 will be logged.
+** TODO Logging and Debugging
+*** TODO Take a look at ~fern~
+https://docs.rs/fern/*/fern/
+
+It looks like the main "configurable logging thing" and considering I won't have
+web-request logs to look at, this might become invaluable.
 * About the Project
 
 ** Why is this being written?
