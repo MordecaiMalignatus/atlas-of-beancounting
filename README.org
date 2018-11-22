@@ -23,8 +23,28 @@ deaths can be mitigated. (A map entry to the same map after a death is taken to
 be the same map, unless a new one is explicitly triggered)
 ** TODO Pricing
 *** TODO Find way to grab and cache the poe.ninja prices
-**** TODO Document the inofficial API via browser dev tools in POE.ninja.
+**** DONE Document the inofficial API via browser dev tools in POE.ninja.
+CLOSED: [2018-11-22 Thu 05:53]
 - Currency Overview: ~https://poe.ninja/api/currencyoverview?league=$LEAGUE&type=Currency&date=$DATE~
+- Fragments: ~https://poe.ninja/api/data/currencyoverview?league=Delve&type=Fragment&date=2018-11-22~
+- Fossils: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=Fossil&date=2018-11-22~
+- Resonators: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=Resonator&date=2018-11-22~
+- Essences: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=Essence&date=2018-11-22~
+- Divination Cards: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=DivinationCard&date=2018-11-22~
+- Prophecies: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=Prophecy&date=2018-11-22~
+- Skill Gems: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=SkillGem&date=2018-11-22~
+- Base Types: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=BaseType&date=2018-11-22~
+- Helm Enchants: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=HelmetEnchant&date=2018-11-22~
+- Maps, Unique: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=UniqueMap&date=2018-11-22~
+- Maps: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=Map&date=2018-11-22~
+- Unique Jewels: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=UniqueJewel&date=2018-11-22~
+- Unique Flasks: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=UniqueFlask&date=2018-11-22~
+- Unique Weapons: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=UniqueWeapon&date=2018-11-22~
+- Unique Armor: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=UniqueArmour&date=2018-11-22~
+- Unique Accessories: ~https://poe.ninja/api/data/itemoverview?league=Delve&type=UniqueAccessory&date=2018-11-22~
+
+Those are the only endpoints I've really found, and nothing else seems to really
+work for that.
 **** TODO Persist the cache to disk to avoid re-querying on boot.
 **** TODO Provide hook to invalidate the cache.
 This would probably just be a blanket refresh. Also something to be considered
