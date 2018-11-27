@@ -37,6 +37,13 @@ fn spawn_price_bot(recv: Receiver<PriceMessage>, sender: Sender<PriceMessage>) -
                 PriceMessage::Response { .. } => {
                     panic!("How is a Response on the request channel?");
                 }
+
+                PriceMessage::InvalidateCache => match refresh_price_cache() {
+                    Ok(c) => price_cache = c,
+                    Err(e) => {
+                        println!("Can't refresh cache while invalidating, using old cache instead.")
+                    }
+                },
             },
 
             Err(e) => panic!("Error when receiving price request: {}", e),
