@@ -46,17 +46,15 @@ CLOSED: [2018-11-22 Thu 05:53]
 Those are the only endpoints I've really found, and nothing else seems to really
 work for that.
 **** TODO Persist the cache to disk to avoid re-querying on boot.
-**** TODO Provide hook to invalidate the cache.
+**** DONE Provide hook to invalidate the cache.
+CLOSED: [2018-11-27 Tue 06:31]
 This would probably just be a blanket refresh. Also something to be considered
 for the future, not necessarily alpha.
-**** TODO Implement cache seeding/restoring
+**** DONE Implement cache seeding/restoring
+CLOSED: [2018-11-27 Tue 06:26]
 When the pricing subsystem is started, refresh/restore the cache to make sure we
 can rely on "Present but expired" being an accurate measure for "Item has a
 price in poe.ninja"
-**** TODO Provide selective cache refresh.
-I want to avoid blasting out 20 http requests whenever some cache misses, so I
-have to cache the category the item was found in in my cache, so I can re-query
-just that.
 ** TODO Front-end
 *** TODO Build compile script
 This would need to inline everything into the ~index.html~ file, and build that
