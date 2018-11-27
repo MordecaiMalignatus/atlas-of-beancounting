@@ -11,6 +11,7 @@ use types::pricing::{Price, PriceMessage};
 
 type PriceCache = HashMap<String, CacheEntry>;
 
+#[derive(Debug)]
 struct CacheEntry {
     price: Price,
     expiration: DateTime<Local>,
@@ -53,32 +54,37 @@ fn query_cache(_cache: &mut PriceCache, _key: &str) -> Option<Price> {
 /// currently sequentially. This would benefit greatly from throwing a rayon
 /// par_iter() on there, even though I'm not sure how well Reqwest handles
 /// that. Definitely needs to be made either asynchronous or parallel.
-fn refresh_gear_cache(cache: &mut PriceCache) -> Result<(), Error> {
+fn refresh_price_cache() -> Result<PriceCache, Error> {
     let client = Client::new();
     let prices: Vec<Price> = POE_NINJA_ENDPOINT_TEMPLATES
         .to_vec()
         .iter()
         .map(|url| url.replace("{}", CURRENT_LEAGUE))
         .map(|url| client.get(&url).send())
-        .filter(|result| result.is_ok())
         .map(|res| res.expect("Can't unwrap Request when refreshing gear cache"))
-        .filter(|resp| resp.status().is_success())
-        .map(|mut resp| {
-            resp.json::<NinjaCurrencyOverviewResponse>()
-                .expect("Should be able to parse a poe.ninja response.")
-        }).flat_map(|resp| resp.lines.into_iter().map(|line| Price::from(line)))
+        .map(
+            |mut resp| match resp.json::<NinjaCurrencyOverviewResponse>() {
+                Ok(result) => result,
+                Err(e) => panic!(
+                    "Can't parse response into poe.ninja type, got {:?} instead, error: {}",
+                    resp, e
+                ),
+            },
+        ).flat_map(|resp| resp.lines.into_iter().map(|line| Price::from(line)))
         .collect();
 
     println!("Fetched {} prices, updating cache...", prices.len());
-
+    let mut cache = PriceCache::new();
     let _ = prices
         .into_iter()
         .map(|price| CacheEntry {
             price,
             expiration: calculate_expiration_date(Local::now()),
-        }).map(|entry| cache.insert(entry.price.currency_name.clone(), entry));
+        }).for_each(|entry| {
+            cache.insert(entry.price.name.clone(), entry);
+        });
 
-    Ok(())
+    Ok(cache)
 }
 
 fn calculate_expiration_date(now: DateTime<Local>) -> DateTime<Local> {
@@ -91,5 +97,12 @@ fn calculate_expiration_date(now: DateTime<Local>) -> DateTime<Local> {
 mod test {
     use super::*;
 
+    #[test]
+    fn should_update_cache() {
+        let cache = refresh_price_cache().unwrap();
+
+        println!("{:?}", cache);
+        assert!(cache.len() > 0;)
+    }
     // Needs new tests, I obsoleted them all :(
 }

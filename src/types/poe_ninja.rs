@@ -5,15 +5,21 @@
 #[derive(Serialize, Deserialize, Debug)]
 pub struct NinjaCurrencyOverviewResponse {
     pub lines: Vec<NinjaLineResponse>,
-    pub currencyDetails: Vec<NinjaDetails>,
+    pub currencyDetails: Option<Vec<NinjaDetails>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct NinjaLineResponse {
-    pub currencyTypeName: String,
+    // One of the two has to be present, one for currencies, one for the rest.
+    pub currencyTypeName: Option<String>,
+    pub name: Option<String>,
+
     pub pay: Option<NinjaPrice>,
     pub receive: Option<NinjaPrice>,
-    pub chaosEquivalent: f32,
+
+    // First is for currencies, latter for items.
+    pub chaosEquivalent: Option<f32>,
+    pub chaosValue: Option<f32>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
