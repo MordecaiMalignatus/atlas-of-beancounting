@@ -1,6 +1,6 @@
 use chrono::prelude::*;
 use chrono::Duration;
-use reqwest::{Client, Error, Method, Request, Url};
+use reqwest::{Client, Error};
 
 use std::collections::HashMap;
 use std::sync::mpsc::{Receiver, Sender};
@@ -23,7 +23,7 @@ fn spawn_price_bot(recv: &Receiver<PriceMessage>, sender: &Sender<PriceMessage>)
     loop {
         match recv.recv() {
             Ok(o) => match o {
-                PriceMessage::Get { item: item } => match query_cache(&mut price_cache, &item) {
+                PriceMessage::Get { item } => match query_cache(&mut price_cache, &item) {
                     Some(price) => match sender.send(PriceMessage::Response { item, price }) {
                         Ok(()) => {}
                         Err(e) => panic!("Could not send price response: {}", e),
@@ -41,7 +41,7 @@ fn spawn_price_bot(recv: &Receiver<PriceMessage>, sender: &Sender<PriceMessage>)
                 PriceMessage::InvalidateCache => match refresh_price_cache() {
                     Ok(c) => price_cache = c,
                     Err(e) => {
-                        println!("Can't refresh cache while invalidating, using old cache instead.")
+                        println!("Can't refresh cache while invalidating, using old cache instead.\nError: {}", e)
                     }
                 },
             },
