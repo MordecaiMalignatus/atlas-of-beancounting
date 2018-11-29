@@ -1,14 +1,17 @@
 //! This module is for the types that end up getting deserialized from
 //! Poe.ninja. They're not necessarily the types used here, but needed as
-//! deserialization target.
+//! deserialization target. Snake case is ignored because the names matter for
+//! deserialization.
 
 #[derive(Serialize, Deserialize, Debug)]
+#[allow(non_snake_case)]
 pub struct NinjaCurrencyOverviewResponse {
     pub lines: Vec<NinjaLineResponse>,
     pub currencyDetails: Option<Vec<NinjaDetails>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[allow(non_snake_case)]
 pub struct NinjaLineResponse {
     // One of the two has to be present, one for currencies, one for the rest.
     pub currencyTypeName: Option<String>,
@@ -23,6 +26,7 @@ pub struct NinjaLineResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[allow(non_snake_case)]
 pub struct NinjaPrice {
     pub id: u32,
     pub league_id: u32,
@@ -36,6 +40,7 @@ pub struct NinjaPrice {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[allow(non_snake_case)]
 pub struct NinjaDetails {
     pub id: u32,
     pub icon: String,
