@@ -17,7 +17,7 @@ struct CacheEntry {
     expiration: DateTime<Local>,
 }
 
-fn spawn_price_bot(recv: Receiver<PriceMessage>, sender: Sender<PriceMessage>) -> ! {
+fn spawn_price_bot(recv: &Receiver<PriceMessage>, sender: &Sender<PriceMessage>) -> ! {
     let mut price_cache: PriceCache = HashMap::new();
 
     loop {

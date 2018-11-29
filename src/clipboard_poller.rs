@@ -7,7 +7,7 @@ use types::clipboard_event::ClipboardEvent;
 
 /// Poll clipboard every 200ms, trying to grab everything that happens. Might be
 /// not good performance wise.
-pub fn watch_clipboard(s: Sender<ClipboardEvent>) -> ! {
+pub fn watch_clipboard(s: &Sender<ClipboardEvent>) -> ! {
     let mut current_content = String::new();
     loop {
         // TODO: Miiiiiight need better error handling. Or any at all.

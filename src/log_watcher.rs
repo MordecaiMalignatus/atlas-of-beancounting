@@ -11,7 +11,7 @@ use std::sync::mpsc::channel;
 use std::sync::mpsc::Sender;
 use types::zone_event::ZoneEvent;
 
-pub fn watch_zone_log(_s: Sender<ZoneEvent>) -> ! {
+pub fn watch_zone_log(_s: &Sender<ZoneEvent>) -> ! {
     let (watcher_sender, watcher_receiver) = channel();
     let mut watcher = raw_watcher(watcher_sender).unwrap();
     let mut log_offset = 0 as u64;
