@@ -29,9 +29,13 @@ fn spawn_price_bot(recv: &Receiver<PriceMessage>, sender: &Sender<PriceMessage>)
                         Err(e) => panic!("Could not send price response: {}", e),
                     },
                     None => {
-                        // TODO: Send back dummy response to let the rest of the
-                        // system know that this item isn't priced by poe.ninja,
-                        // or has "low confidence" pricing.
+                        match sender.send(PriceMessage::Response {
+                            item: item.clone(),
+                            price: Price { name: item, chaos_equivalent: 0.0
+                        }}) {
+                            Ok(()) => {},
+                            Err(e) => panic!("Could not send price response: {}", e),
+                        }
                     }
                 },
                 PriceMessage::Response { .. } => {
