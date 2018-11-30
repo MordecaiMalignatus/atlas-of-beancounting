@@ -109,6 +109,7 @@ mod test {
     use super::*;
 
     #[test]
+    #[ignore]
     fn should_update_cache() {
         let cache = refresh_price_cache().unwrap();
 
