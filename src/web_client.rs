@@ -81,12 +81,12 @@ fn refresh_price_cache() -> Result<PriceCache, Error> {
                     resp, e
                 ),
             },
-        ).flat_map(|resp| resp.lines.into_iter().map(|line| Price::from(line)))
+        ).flat_map(|resp| resp.lines.into_iter().map(Price::from))
         .collect();
 
     println!("Fetched {} prices, updating cache...", prices.len());
     let mut cache = PriceCache::new();
-    let _ = prices
+    prices
         .into_iter()
         .map(|price| CacheEntry {
             price,
