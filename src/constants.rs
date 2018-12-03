@@ -2,6 +2,8 @@
 /// https://www.pathofexile.com/developer/docs/api-resource-leagues
 pub const CURRENT_LEAGUE: &str = "Delve";
 
+pub const IS_DEBUG: bool = true;
+
 /// URLs for poe.ninja. These need to have the `{}` `replace`d with the league
 /// name before use.  before use. These are overspecific because the API is
 /// locked down pretty tightly -- These are the endpoints that work and I
