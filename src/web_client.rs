@@ -9,32 +9,33 @@ use constants::{CURRENT_LEAGUE, POE_NINJA_ENDPOINT_TEMPLATES};
 use types::poe_ninja::NinjaCurrencyOverviewResponse;
 use types::pricing::{Price, PriceMessage};
 
-type PriceCache = HashMap<String, CacheEntry>;
+type PriceCache = HashMap<String, Price>;
 
-#[derive(Debug)]
-struct CacheEntry {
-    price: Price,
-    expiration: DateTime<Local>,
+pub struct PriceBot<'a> {
+    responseChannel: &'a Sender<PriceMessage>,
+    requestChannel: &'a Receiver<PriceMessage>,
+    price_cache: PriceCache,
+    cache_expiration: DateTime<Local>,
 }
 
-fn spawn_price_bot(recv: &Receiver<PriceMessage>, sender: &Sender<PriceMessage>) -> ! {
-    let mut price_cache: PriceCache = HashMap::new();
-
-    loop {
-        match recv.recv() {
+impl<'a> PriceBot<'a> {
+    pub fn run(&mut self) -> ! {
+        loop {
+            match self.requestChannel.recv() {
             Ok(o) => match o {
-                PriceMessage::Get { item } => match query_cache(&mut price_cache, &item) {
-                    Some(price) => match sender.send(PriceMessage::Response { item, price }) {
-                        Ok(()) => {}
-                        Err(e) => panic!("Could not send price response: {}", e),
-                    },
-                    None => {
-                        match sender.send(PriceMessage::Response {
-                            item: item.clone(),
-                            price: Price { name: item, chaos_equivalent: 0.0
-                        }}) {
-                            Ok(()) => {},
-                            Err(e) => panic!("Could not send price response: {}", e),
+                PriceMessage::Get { item } => {
+                    if self.cache_expiration > Local::now() {
+                        self.send_price_response(item)
+                    } else {
+                        match refresh_price_cache() {
+                            Ok(cache) => {
+                                self.price_cache = cache;
+                                self.send_price_response(item)
+                            },
+                            Err(e) => {
+                                println!("[PriceBot] Can't update cache, contuing with old. Error: {}", e);
+                                self.send_price_response(item)
+                            }
                         }
                     }
                 },
@@ -43,7 +44,10 @@ fn spawn_price_bot(recv: &Receiver<PriceMessage>, sender: &Sender<PriceMessage>)
                 }
 
                 PriceMessage::InvalidateCache => match refresh_price_cache() {
-                    Ok(c) => price_cache = c,
+                    Ok(c) => {
+                        self.price_cache = c;
+                        println!("[PriceBot] Invalidated and refreshed cache");
+                    },
                     Err(e) => {
                         println!("Can't refresh cache while invalidating, using old cache instead.\nError: {}", e)
                     }
@@ -52,14 +56,27 @@ fn spawn_price_bot(recv: &Receiver<PriceMessage>, sender: &Sender<PriceMessage>)
 
             Err(e) => panic!("Error when receiving price request: {}", e),
         }
+        }
+    }
+
+    fn send_price_response(&self, item: String) -> () {
+        let price = match self.price_cache.get(&item) {
+            Some(price) => (*price).clone(),
+            None => Price {
+                name: item.clone(),
+                chaos_equivalent: 0.0,
+            },
+        };
+
+        match self
+            .responseChannel
+            .send(PriceMessage::Response { item, price })
+        {
+            Ok(()) => {}
+            Err(e) => panic!("[PriceBot] Can't send pricing response, error: {}", e),
+        }
     }
 }
-
-fn query_cache(_cache: &mut PriceCache, _key: &str) -> Option<Price> {
-    let _now = Local::now();
-    unimplemented!()
-}
-
 /// Refresh the passed cache with new poe.ninja data.  This will hit up all the
 /// endpoints in poe.ninja and move all the response data into the cache --
 /// currently sequentially. This would benefit greatly from throwing a rayon
@@ -86,14 +103,9 @@ fn refresh_price_cache() -> Result<PriceCache, Error> {
 
     println!("Fetched {} prices, updating cache...", prices.len());
     let mut cache = PriceCache::new();
-    prices
-        .into_iter()
-        .map(|price| CacheEntry {
-            price,
-            expiration: calculate_expiration_date(Local::now()),
-        }).for_each(|entry| {
-            cache.insert(entry.price.name.clone(), entry);
-        });
+    prices.into_iter().for_each(|price| {
+        cache.insert(price.name.clone(), price);
+    });
 
     Ok(cache)
 }
