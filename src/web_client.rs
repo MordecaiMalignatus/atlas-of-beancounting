@@ -12,8 +12,8 @@ use types::pricing::{Price, PriceMessage};
 type PriceCache = HashMap<String, Price>;
 
 pub struct PriceBot<'a> {
-    responseChannel: &'a Sender<PriceMessage>,
-    requestChannel: &'a Receiver<PriceMessage>,
+    response_channel: &'a Sender<PriceMessage>,
+    request_channel: &'a Receiver<PriceMessage>,
     price_cache: PriceCache,
     cache_expiration: DateTime<Local>,
 }
@@ -21,7 +21,7 @@ pub struct PriceBot<'a> {
 impl<'a> PriceBot<'a> {
     pub fn run(&mut self) -> ! {
         loop {
-            match self.requestChannel.recv() {
+            match self.request_channel.recv() {
             Ok(o) => match o {
                 PriceMessage::Get { item } => {
                     if self.cache_expiration > Local::now() {
@@ -69,7 +69,7 @@ impl<'a> PriceBot<'a> {
         };
 
         match self
-            .responseChannel
+            .response_channel
             .send(PriceMessage::Response { item, price })
         {
             Ok(()) => {}
