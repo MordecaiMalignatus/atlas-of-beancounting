@@ -19,6 +19,23 @@ pub struct PriceBot<'a> {
 }
 
 impl<'a> PriceBot<'a> {
+    pub fn new(
+        sender: &'a Sender<PriceMessage>,
+        receiver: &'a Receiver<PriceMessage>,
+    ) -> PriceBot<'a> {
+        // Will be invalid immediately, because the cache is empty, and get
+        // fixed on first request.
+        let cache_expiration = Local::now();
+        let price_cache = HashMap::new();
+
+        PriceBot {
+            response_channel: sender,
+            request_channel: receiver,
+            price_cache,
+            cache_expiration,
+        }
+    }
+
     /// Run the price bot. This will lock in an endless loop, so do it in a
     /// thread. During this, the Bot will listen to requests on the Receiver
     /// given to it, and send its responses to the Sender you gave it. The
@@ -76,8 +93,11 @@ impl<'a> PriceBot<'a> {
             .send(PriceMessage::Response { item, price })
         {
             Ok(()) => {}
-            Err(e) => panic!("[PriceBot] Can't send pricing response,\
-                              error: {}", e),
+            Err(e) => panic!(
+                "[PriceBot] Can't send pricing response,\
+                 error: {}",
+                e
+            ),
         }
     }
 
@@ -148,4 +168,16 @@ mod test {
         assert!(cache.len() > 0;)
     }
     // Needs new tests, I obsoleted them all :(
+
+    fn should_update_cache_expiry() {
+        use std::sync::mpsc;
+
+        let (sender, receiver): (Sender<PriceMessage>, Receiver<PriceMessage>) = mpsc::channel();
+        let price_bot = PriceBot {
+            response_channel: &sender,
+            request_channel: &receiver,
+            cache_expiration: Local::ymd(1999, 01, 01),
+            price_cache: HashMap::new(),
+        };
+    }
 }
