@@ -19,49 +19,52 @@ pub struct PriceBot<'a> {
 }
 
 impl<'a> PriceBot<'a> {
+    /// Run the price bot. This will lock in an endless loop, so do it in a
+    /// thread. During this, the Bot will listen to requests on the Receiver
+    /// given to it, and send its responses to the Sender you gave it. The
+    /// possilble messages are Enum variants of `PriceMessage`, and obviously
+    /// constructing a Response variant and sending it to the bot will panic the
+    /// bot. Don't be a smartass. :)
     pub fn run(&mut self) -> ! {
         loop {
             match self.request_channel.recv() {
-            Ok(o) => match o {
-                PriceMessage::Get { item } => {
-                    if self.cache_expiration > Local::now() {
-                        self.send_price_response(item)
-                    } else {
-                        match refresh_price_cache() {
-                            Ok(cache) => {
-                                self.price_cache = cache;
-                                self.send_price_response(item)
-                            },
-                            Err(e) => {
-                                println!("[PriceBot] Can't update cache, contuing with old. Error: {}", e);
-                                self.send_price_response(item)
-                            }
-                        }
+                Ok(o) => match o {
+                    PriceMessage::Get { item } => self.respond_to_price_request(item),
+                    PriceMessage::InvalidateCache => self.invalidate_cache(),
+                    PriceMessage::Response { .. } => {
+                        panic!("How is a Response on the request channel?");
                     }
                 },
-                PriceMessage::Response { .. } => {
-                    panic!("How is a Response on the request channel?");
-                }
-
-                PriceMessage::InvalidateCache => match refresh_price_cache() {
-                    Ok(c) => {
-                        self.price_cache = c;
-                        println!("[PriceBot] Invalidated and refreshed cache");
-                    },
-                    Err(e) => {
-                        println!("Can't refresh cache while invalidating, using old cache instead.\nError: {}", e)
-                    }
-                },
-            },
-
-            Err(e) => panic!("Error when receiving price request: {}", e),
+                Err(e) => panic!("Error when receiving price request: {}", e),
+            }
         }
+    }
+
+    fn respond_to_price_request(&mut self, item: String) -> () {
+        if self.cache_expiration > Local::now() {
+            self.send_price_response(item)
+        } else {
+            match refresh_price_cache() {
+                Ok(cache) => {
+                    self.price_cache = cache;
+                    self.send_price_response(item)
+                }
+                Err(e) => {
+                    println!(
+                        "[PriceBot] Can't update cache, contuing with old. Error: {}",
+                        e
+                    );
+                    self.send_price_response(item)
+                }
+            }
         }
     }
 
     fn send_price_response(&self, item: String) -> () {
         let price = match self.price_cache.get(&item) {
             Some(price) => (*price).clone(),
+            // Send back dummy for display purposes. It still will appear, we
+            // just don't have a price for it.
             None => Price {
                 name: item.clone(),
                 chaos_equivalent: 0.0,
@@ -73,7 +76,23 @@ impl<'a> PriceBot<'a> {
             .send(PriceMessage::Response { item, price })
         {
             Ok(()) => {}
-            Err(e) => panic!("[PriceBot] Can't send pricing response, error: {}", e),
+            Err(e) => panic!("[PriceBot] Can't send pricing response,\
+                              error: {}", e),
+        }
+    }
+
+    fn invalidate_cache(&mut self) -> () {
+        match refresh_price_cache() {
+            Ok(c) => {
+                self.price_cache = c;
+                self.cache_expiration = calculate_expiration_date(Local::now());
+                println!("[PriceBot] Invalidated and refreshed cache");
+            }
+            Err(e) => println!(
+                "Can't refresh cache while invalidating, using old\
+                 cache instead.\nError: {}",
+                e
+            ),
         }
     }
 }
