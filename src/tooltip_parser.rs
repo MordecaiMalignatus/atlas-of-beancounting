@@ -16,8 +16,8 @@ use types::item::StackSize;
 use types::item::UniqueStub;
 
 pub fn spawn_tooltip_parser(
-    clipboard_receiver: &Receiver<ClipboardEvent>,
-    parser_sender: &Sender<Item>,
+    clipboard_receiver: Receiver<ClipboardEvent>,
+    parser_sender: Sender<Item>,
 ) -> ! {
     loop {
         match clipboard_receiver.recv() {

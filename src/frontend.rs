@@ -3,7 +3,7 @@ use std::sync::mpsc::Receiver;
 use types::frontend_communication::FrontendMessage;
 use web_view::Content;
 
-pub fn spawn_frontend(_receiver: &Receiver<FrontendMessage>) -> () {
+pub fn spawn_frontend(_receiver: Receiver<FrontendMessage>) -> () {
     let html = include_str!("../frontend/index.html");
 
     let view = web_view::builder()

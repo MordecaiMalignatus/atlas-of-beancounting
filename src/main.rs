@@ -25,19 +25,19 @@ use std::thread;
 fn main() {
     let (clipboard_sender, clipboard_receiver) = mpsc::channel();
     thread::spawn(move || {
-        clipboard_poller::watch_clipboard(&clipboard_sender);
+        clipboard_poller::watch_clipboard(clipboard_sender);
     });
 
     let (log_sender, _log_receiver) = mpsc::channel();
     thread::spawn(move || {
-        log_watcher::watch_zone_log(&log_sender);
+        log_watcher::watch_zone_log(log_sender);
     });
 
     let (tooltip_sender, _tooltip_receiver) = mpsc::channel();
     thread::spawn(move || {
-        tooltip_parser::spawn_tooltip_parser(&clipboard_receiver, &tooltip_sender);
+        tooltip_parser::spawn_tooltip_parser(clipboard_receiver, tooltip_sender);
     });
 
     let (_frontend_sender, frontend_receiver) = mpsc::channel();
-    frontend::spawn_frontend(&frontend_receiver);
+    frontend::spawn_frontend(frontend_receiver);
 }

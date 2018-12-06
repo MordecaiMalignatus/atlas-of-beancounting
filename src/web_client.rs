@@ -11,18 +11,15 @@ use types::pricing::{Price, PriceMessage};
 
 type PriceCache = HashMap<String, Price>;
 
-pub struct PriceBot<'a> {
-    response_channel: &'a Sender<PriceMessage>,
-    request_channel: &'a Receiver<PriceMessage>,
+pub struct PriceBot {
+    response_channel: Sender<PriceMessage>,
+    request_channel: Receiver<PriceMessage>,
     price_cache: PriceCache,
     cache_expiration: DateTime<Local>,
 }
 
-impl<'a> PriceBot<'a> {
-    pub fn new(
-        sender: &'a Sender<PriceMessage>,
-        receiver: &'a Receiver<PriceMessage>,
-    ) -> PriceBot<'a> {
+impl PriceBot {
+    pub fn new(sender: Sender<PriceMessage>, receiver: Receiver<PriceMessage>) -> PriceBot {
         // Will be invalid immediately, because the cache is empty, and get
         // fixed on first request.
         let cache_expiration = Local::now();
