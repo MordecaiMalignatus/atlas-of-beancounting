@@ -164,17 +164,51 @@ mod test {
         println!("{:?}", cache);
         assert!(cache.len() > 0;)
     }
-    // Needs new tests, I obsoleted them all :(
 
+    #[test]
     fn should_update_cache_expiry() {
         use std::sync::mpsc;
+        use std::thread;
 
-        let (sender, receiver): (Sender<PriceMessage>, Receiver<PriceMessage>) = mpsc::channel();
-        let price_bot = PriceBot {
-            response_channel: &sender,
-            request_channel: &receiver,
-            cache_expiration: Local::ymd(1999, 01, 01),
-            price_cache: HashMap::new(),
+        let mut cache: PriceCache = HashMap::new();
+        // Create deliberately invalid starting data.  If the cache is
+        // invalidated correctly, the outside world will never see this.
+        cache.insert(
+            "Exalted Orb".to_string(),
+            Price {
+                name: "Exalted Orb".to_string(),
+                chaos_equivalent: -111111.0,
+            },
+        );
+
+        let (sender, receiver_bot) = mpsc::channel();
+        let (sender_bot, receiver) = mpsc::channel();
+        thread::spawn(move || {
+            let mut price_bot = PriceBot {
+                response_channel: sender_bot,
+                request_channel: receiver_bot,
+                cache_expiration: Local::now(),
+                price_cache: cache,
+            };
+            price_bot.run()
+        });
+
+        match sender.send(PriceMessage::Get {
+            item: "Exalted Orb".to_string(),
+        }) {
+            Ok(()) => {},
+            Err(e) => panic!("Can't send Price/Get Message: {}", e),
         };
+
+        match receiver.recv() {
+            Ok(o) => match o {
+                PriceMessage::Response { item, price } => {
+                    assert_eq!(item, "Exalted Orb".to_string());
+                    assert!(price.chaos_equivalent > 0.0);
+                }
+                _ => panic!("Not a response"),
+            },
+            _ => panic!("Can't read from channel after updating Price and asking again."),
+        }
     }
 }
