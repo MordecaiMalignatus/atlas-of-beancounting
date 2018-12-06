@@ -33,5 +33,6 @@ impl From<NinjaLineResponse> for Price {
 pub enum PriceMessage {
     Get { item: String },
     Response { item: String, price: Price },
-    InvalidateCache
+    InvalidateCache,
+    ShutDown
 }

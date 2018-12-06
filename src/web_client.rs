@@ -39,7 +39,7 @@ impl PriceBot {
     /// possilble messages are Enum variants of `PriceMessage`, and obviously
     /// constructing a Response variant and sending it to the bot will panic the
     /// bot. Don't be a smartass. :)
-    pub fn run(&mut self) -> ! {
+    pub fn run(&mut self) -> () {
         loop {
             match self.request_channel.recv() {
                 Ok(o) => match o {
@@ -47,6 +47,10 @@ impl PriceBot {
                     PriceMessage::InvalidateCache => self.invalidate_cache(),
                     PriceMessage::Response { .. } => {
                         panic!("How is a Response on the request channel?");
+                    }
+                    PriceMessage::ShutDown => {
+                        println!("[PriceBot] Shutting down...");
+                        break;
                     }
                 },
                 Err(e) => panic!("Error when receiving price request: {}", e),
@@ -113,6 +117,7 @@ impl PriceBot {
         }
     }
 }
+
 /// Refresh the passed cache with new poe.ninja data.  This will hit up all the
 /// endpoints in poe.ninja and move all the response data into the cache --
 /// currently sequentially. This would benefit greatly from throwing a rayon
@@ -137,7 +142,10 @@ fn refresh_price_cache() -> Result<PriceCache, Error> {
         ).flat_map(|resp| resp.lines.into_iter().map(Price::from))
         .collect();
 
-    println!("Fetched {} prices, updating cache...", prices.len());
+    println!(
+        "[PriceBot] Fetched {} prices, updating cache...",
+        prices.len()
+    );
     let mut cache = PriceCache::new();
     prices.into_iter().for_each(|price| {
         cache.insert(price.name.clone(), price);
@@ -209,6 +217,11 @@ mod test {
                 _ => panic!("Not a response"),
             },
             _ => panic!("Can't read from channel after updating Price and asking again."),
+        }
+
+        match sender.send(PriceMessage::ShutDown) {
+            Ok(()) => {}
+            Err(e) => panic!("Can't shut down price bot: {}", e),
         }
     }
 }
