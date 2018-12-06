@@ -196,7 +196,7 @@ mod test {
         match sender.send(PriceMessage::Get {
             item: "Exalted Orb".to_string(),
         }) {
-            Ok(()) => {},
+            Ok(()) => {}
             Err(e) => panic!("Can't send Price/Get Message: {}", e),
         };
 

@@ -1,6 +1,6 @@
 /// TODO: Get the list of this from the POE API:
 /// https://www.pathofexile.com/developer/docs/api-resource-leagues
-pub const CURRENT_LEAGUE: &str = "Delve";
+pub const CURRENT_LEAGUE: &str = "Standard";
 
 pub const IS_DEBUG: bool = true;
 
