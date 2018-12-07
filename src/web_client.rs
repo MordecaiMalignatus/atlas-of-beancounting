@@ -4,6 +4,7 @@ use reqwest::{Client, Error};
 
 use std::collections::HashMap;
 use std::sync::mpsc::{Receiver, Sender};
+use std::thread;
 
 use constants::{CURRENT_LEAGUE, POE_NINJA_ENDPOINT_TEMPLATES};
 use types::poe_ninja::NinjaCurrencyOverviewResponse;
@@ -31,6 +32,13 @@ impl PriceBot {
             price_cache,
             cache_expiration,
         }
+    }
+
+    pub fn spawn(
+        sender: Sender<PriceMessage>,
+        receiver: Receiver<PriceMessage>,
+    ) -> thread::JoinHandle<()> {
+        thread::spawn(move || PriceBot::new(sender, receiver).run())
     }
 
     /// Run the price bot. This will lock in an endless loop, so do it in a
