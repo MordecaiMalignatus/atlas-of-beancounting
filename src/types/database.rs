@@ -4,4 +4,5 @@ use types::item::Item;
 pub enum DatabaseMessage {
     Save(Item),
     ShutDown,
+    Panic{reason: String},
 }

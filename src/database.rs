@@ -21,7 +21,19 @@ impl DatabaseBot {
         })
     }
 
-    pub fn run() -> () {
-        unimplemented!()
+    pub fn run(&mut self) -> () {
+        unimplemented!();
+        loop {
+            match self.receiver.recv() {
+                Ok(o) => match o {
+                    _ => unimplemented!()
+                }
+                Err(e) => {
+                    println!("[DatabaseBot] Can't read from input channel, exiting");
+                    self.sender.send(DatabaseMessage::Panic{reason: String::from("[DatabaseBot] Can't read from input channel, exiting.")});
+                    painic!("Can't read from input channel")
+                }
+            }
+        }
     }
 }
