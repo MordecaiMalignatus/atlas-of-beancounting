@@ -4,3 +4,4 @@ pub mod item;
 pub mod pricing;
 pub mod poe_ninja;
 pub mod database;
+pub mod frontend_communication;
